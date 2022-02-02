@@ -17,8 +17,7 @@ BOT Installation Guide
 
 - install node js from https://nodejs.org/en/download/
 - copy bot folder to any location
-- update environment file (this file might be hidden on mac). Example environment settings for the file .env.bsc.mainnet
-  - .env.bsc.mainnet
+- update your erc20 wallet privat key in environment file .env.bsc.mainnet(this file might be hidden on mac). Example environment settings for the file .env.bsc.mainnet  
 - Navigate to that path using terminal (mac) / cmd (windows)
 - run below cmd to install dependencies
   - npm update
