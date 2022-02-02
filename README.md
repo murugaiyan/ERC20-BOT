@@ -23,8 +23,13 @@ BOT Installation Guide
 - run below cmd to install dependencies
   - npm update
 - run below command for bot app to start
-  - npm run start-bsc-testnet - this will launch dbot web application on browser localhost:3000
+  - npm run start-bsc-mainnet - this will launch dbot web application on browser localhost:3000
 - start using bot features from UI
+
+BSC Mainnet:
+npm run start-bsc-mainnet
+BSC-Testnet
+npm run start-bsc-testnet
 
 Example BSC mainnet environment file (.env.bsc.mainnet).
 
