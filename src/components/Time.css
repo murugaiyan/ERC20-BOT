@@ -1,0 +1,27 @@
+.Time {
+  min-height: 6vh;
+  min-width: 7vh;
+  background-color: #4d4d4d;
+  color: #f3f3f3;
+  display: flex;
+  justify-content: right;
+  align-items: center;
+  text-align: center;
+  font-size: 25px;
+}
+
+.Time svg {
+  margin: 0 5px;
+  font-size: 35px;
+  text-transform: capitalize;
+  font-weight: 600;
+  width: 35px;
+  height: 35px;
+}
+
+.Time p {
+  padding-top: 5px;
+  margin: 0 5px;
+  text-transform: capitalize;
+  font-weight: 600;
+}
