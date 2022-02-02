@@ -26,7 +26,7 @@ BOT Installation Guide
   - npm run start-bsc-testnet - this will launch dbot web application on browser localhost:3000
 - start using bot features from UI
 
-Example BSC mainnet environment file.
+Example BSC mainnet environment file (.env.bsc.mainnet).
 
 REACT_APP_WALLET_PRIVATE_KEY=<YOUR PRIVATE KEY. SHOULD ENTER PRIVATE KEY ONLY(NO 0x, No single quotes('), no double quotes(")
 REACT_APP_BLOCKCHAIN_NODE_PROVIDER=https://bsc-dataseed.binance.org/
