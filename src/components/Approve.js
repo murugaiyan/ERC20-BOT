@@ -1,4 +1,3 @@
-import react, { useEffect } from 'react'; 
 import web3 from './blockchain/web3'
 import {ethers} from 'ethers'
 import Button from './Button';
@@ -7,7 +6,7 @@ import './constants'
 import TokenSymbol  from './TokenSymbol'; 
 import TokenBalance from './TokenBalance'; 
 import TransactionStatus from './TransactionStatus'; 
-
+import ContractTextField from './ContractTextField'; 
 import {useState} from 'react'; 
 import {WALLET_PRIVATE_KEY, ROUTER_CONTRACT_ADDRESS, BLOCKCHAIN_NODE_PROVIDER, BLOCKCHAIN_BLOCK_EXPLORER, TRANSACTION_STATUS} from './constants.js'
 
@@ -46,9 +45,7 @@ function Approve() {
         event.preventDefault();
         startApproveToken(); 
       }
-      const handleSubmit = (event) => {
-        event.preventDefault();
-      }
+      
        async  function startApproveToken () {
         
         try {
@@ -83,23 +80,17 @@ function Approve() {
             setTransactionStatus({status:TRANSACTION_STATUS.TRANSACTION_COMPLETE_EXCEPTION}); 
             console.log("Approve Exception: " + error); 
         }
-
+        function getApproveTokenTxnStatus()
+        {
+            return transactionStatus.status; 
+        }
       }
 
     return (
-        <>         
-            
-            <form onSubmit={handleSubmit}>
-              <label>Approve Token Contract Address: 
-                  <input 
-                  type="text" 
-                  name="contractAddress" 
-                  value={inputs.contractAddress || ""} 
-                  onChange={handleChange}
-                  />
-                </label>
-                 </form>
-                  <p>
+        <>    
+           <div>
+              <ContractTextField onChange={handleChange} title='Enter Valid Contract Address' name="contractAddress" />
+                  
                     <br /> 
                     {inputs.contractAddress.length >=42 &&
                     <label> MaxAvailableToken (
@@ -109,20 +100,23 @@ function Approve() {
                     </label>
                     }
                 <br />
+                 {(inputs.contractAddress.length >=42) &&
                     <Button OnClick={approveToken} title="Approve Token" /> 
-                </p>
+                 }
+               
            
-             <p>
-                 {transactionStatus.status != TRANSACTION_STATUS.TRANSACTION_NOT_STARTED &&
+             
+                 {transactionStatus.status !== TRANSACTION_STATUS.TRANSACTION_NOT_STARTED &&
                     <TransactionStatus status={transactionStatus.status} /> 
                  }
                 <br /> 
-                 {transactionStatus.status != TRANSACTION_STATUS.TRANSACTION_NOT_STARTED &&
+                 {transactionStatus.status !== TRANSACTION_STATUS.TRANSACTION_NOT_STARTED &&
                         <label> Transaction Hash:  
-                            <a href ={transactionHash.confirmedHash} target="_blank"> {transactionHash.confirmedHash} </a>
+                            <a href ={transactionHash.confirmedHash} target="_blank" rel="noopener noreferrer"> {transactionHash.confirmedHash} </a>
                         </label>
                  }
-            </p>
+            
+            </div>
         </>
     );
 }

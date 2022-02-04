@@ -8,12 +8,13 @@ function WalletInfoDashboard()
 {
     return (
         <>
-        <p> 
+        <div> 
+            <br />
             Blockchain Network: <NetworkName /> <br /><br />
             Wallet Address: <WalletAddress /> <br /><br />
             Wallet Balance (<TokenSymbol tokenAddress={BASE_TOKEN_CONTRACT_ADDRESS} />):  <WalletBalance /> 
             <hr />
-         </p> 
+         </div> 
         </>
     )
     

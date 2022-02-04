@@ -7,7 +7,10 @@ import Button from './Button';
 import TokenSymbol  from './TokenSymbol'; 
 import TokenBalance from './TokenBalance'; 
 import TransactionStatus from './TransactionStatus'; 
-
+import ContractTextField from './ContractTextField'; 
+import Checkbox from '@mui/material/Checkbox';
+import FormGroup from '@mui/material/FormGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
 import {WALLET_PRIVATE_KEY, ROUTER_CONTRACT_ADDRESS, PANCAKE_CONTRACT_ABI, BASE_TOKEN_CONTRACT_ADDRESS, BLOCKCHAIN_BLOCK_EXPLORER, TRANSACTION_STATUS, POLLING_BLOCKCHAIN_INTERVAL} from './constants'
 
 
@@ -41,7 +44,6 @@ function SellToken(props)
         guarnteedToken:'',
         recvdToken:''
       }); 
-      
 
       const [transactionHash, setTransactionHash] = useState({
         confirmedHash:'',
@@ -61,16 +63,13 @@ function SellToken(props)
           [event.target.name]: value
         });
       }
-       const handleSubmit = (event) => {
-        event.preventDefault();
-      }
 
      async function handleGetBalance (event)  {
         event.preventDefault(); 
         const tokenBalance = await getTokenBalanceHumanReadable(inputs.contractAddress); 
         inputs.noOfTokensToSell = tokenBalance; 
         setTokenProperty({...currentToken, maxAvailable:tokenBalance}); 
-        //setInputs({noOfTokensToSell:tokenBalance}); 
+        setInputs({...inputs, noOfTokensToSell:tokenBalance}); 
         
     }
     
@@ -78,7 +77,6 @@ function SellToken(props)
     {
         event.preventDefault();  
         setInputs({...inputs, checked:!inputs.checked});
-        console.log("handleCheckBox: ", event.target.checked); 
     }
     
     async function handletSellButton  (event)  {
@@ -293,104 +291,69 @@ function SellToken(props)
             
     }
 
+    function getSellTokenTxnStatus()
+    {
+        console.log("getSellTokenTxnStatus: ", transactionStatus.status); 
+        return transactionStatus.status; 
+    }
+
     return(
         <>
             <div>
-            <form onSubmit={handleSubmit}>
-              <label >Sell Token Contract Address: 
-                  <input 
-                  type="text" 
-                  name="contractAddress" 
-                  value={inputs.contractAddress || ""} 
-                  onChange={handleChange}
-                  />
-                </label>
+                <ContractTextField onChange={handleChange} title='Enter Valid Contract Address' name="contractAddress" />
+                <br></br>
                 {inputs.contractAddress.length >=42 &&
-                  <p>
+
                         <label> MaxAvailableToken (<TokenSymbol tokenAddress={inputs.contractAddress} />):: 
                                                 <TokenBalance tokenAddress={inputs.contractAddress} funcTokenBalance={setTokenBalance}/> 
-                                                
                         </label>
-                  </p>
-                   
                 }
                 
                 {inputs.contractAddress.length >=42 && tokenBalance !==0 &&
                     <label>
-                        <p>
-                            <label> Enable Delayed Sell:  </label>
-                            <input type='checkbox' onChange={handleCheckBox} />
-                        </p>
-                        <p>
+                            <br /><br />
+                            <ContractTextField onChange={handleChange} title='Quantity of Tokens to sell' name="noOfTokensToSell" value={inputs.noOfTokensToSell}/>
+                            {tokenBalance !==0 &&< Button OnClick={handleGetBalance} title=" Get Max" />} 
                             
-                                {inputs.checked === true &&
-                                <label>
-                                    Delayed Sell in Seconds: 
-                                    <input 
-                                    type="text" 
-                                    name="delayedSell" 
-                                    value={inputs.delayedSell || ""} 
-                                    onChange={handleChange}
-                                    /> 
-                                </label>
-                                }                
-                        </p>
-                        <p>
-                            <label>Quantity of Tokens to Sell: 
-                            <input 
-                            type="text" 
-                            name="noOfTokensToSell"
-                            value={inputs.noOfTokensToSell || ""} 
-                            onChange={handleChange}
-                            />
-                            {tokenBalance !==0 &&<Button OnClick={handleGetBalance} title="Max" />}
-                            </label> 
-                        </p>
-                        <p>             
-                            <label>Number of X to Sell: 
-                            <input 
-                            type="text" 
-                            name="noOfX"
-                            value={inputs.noOfX || ""} 
-                            onChange={handleChange}
-                            />
-                            </label>
-                        </p> 
-                        <p>             
-                            <label>Slippage in Percentage: 
-                            <input 
-                            type="text" 
-                            name="slippage"
-                            value={inputs.slippage || ""} 
-                            onChange={handleChange}
-                            />
-                            </label>
-                        </p>
+                             <br /> <br />     
+                           <ContractTextField onChange={handleChange} title='Number of X to sell' name="noOfX" value={inputs.noOfX}/>
+                               <br /> <br />    
+                            <ContractTextField onChange={handleChange} title='Slippage in Percentage' name="slippage" value={inputs.slippage}/>
+                            <br /> <br />
+                            <FormGroup>
+                                <FormControlLabel label="Enable Delayed Sell" control={<Checkbox checked={inputs.checked}onChange={handleCheckBox}/>}  />
+                                {inputs.checked === true && 
+                                <div>
+                                    <br /> 
+                                    <ContractTextField onChange={handleChange} title='Delayed Sell in Seconds' name="delayedSell" value={inputs.delayedSell}/>
+                                </div>
+                                }  
+                                </FormGroup>
+                            
                     </label>
                 }
-                </form>
                {inputs.contractAddress.length >=42 && tokenBalance !==0 &&
                     <Button OnClick={handletSellButton} title={visible ? "Start Sell" : "Stop Sell" } > </Button> 
                 }
             
-             <p>
+            <div>
                   {transactionStatus.status !== TRANSACTION_STATUS.TRANSACTION_NOT_STARTED &&
                     <label>
                         <hr></hr>
-                        <p> Trying to sell quantity of tokens: {inputs.noOfTokensToSell} InitialTokenPrice:{currentToken.initialPrice} TargetTokenPrice:{currentToken.targetPrice} NoOfXReached:{currentToken.noOfXReached}</p>
-                        <p> Guaranteed Token Swap : {swapToken.guarnteedToken} </p>
-                        <p> No of Tokens Loss due to Slippage({inputs.slippage }%): {swapToken.tokenLoss} </p>
-                        <p> Current Token ((<TokenSymbol tokenAddress={inputs.contractAddress} />) Price: {currentToken.currentPrice} </p>
+                         <br/>Trying to sell quantity of tokens: {inputs.noOfTokensToSell} 
+                          <br/> <br/>InitialTokenPrice:{currentToken.initialPrice} TargetTokenPrice:{currentToken.targetPrice} NoOfXReached:{currentToken.noOfXReached}
+                         <br/> <br/>Guaranteed Token Swap : {swapToken.guarnteedToken} 
+                         <br/> <br/>No of Tokens Loss due to Slippage({inputs.slippage }%): {swapToken.tokenLoss} 
+                         <br/> <br/>Current Token ((<TokenSymbol tokenAddress={inputs.contractAddress} />) Price: {currentToken.currentPrice} 
                         <hr></hr>
+                        <br/>
                             <TransactionStatus  status={transactionStatus.status} /> 
-                        <p> 
-                            <label> Transaction Hash:  
-                                <a href ={transactionHash.confirmedHash} target="_blank" rel="noopener" > {transactionHash.confirmedHash} </a>
-                            </label>
-                        </p>
+                            Transaction Hash:  
+                                <a href ={transactionHash.confirmedHash} target="_blank" rel="noopener noreferrer" > {transactionHash.confirmedHash} </a>
+                           
                     </label>
                     }
-            </p>
+            </div>
             </div>
         </>
     )

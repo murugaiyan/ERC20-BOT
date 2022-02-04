@@ -1,9 +1,6 @@
-import ReactDOM, { render } from 'react-dom';
 import Time from './components/Time'; 
-import SnipingContract from './components/SnipingContract';
 import Navigation from './components/Navigation';
 import WalletInfoDashboard from './components/WalletInfoDashboard';
-import cors from 'cors'; 
 
 
 function App () {

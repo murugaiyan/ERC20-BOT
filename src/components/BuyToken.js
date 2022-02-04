@@ -1,12 +1,12 @@
 import {useState} from 'react'; 
 import Button from './Button';
 import web3 from './blockchain/web3'
-import fs from 'fs'; 
 import {WALLET_PRIVATE_KEY, ROUTER_CONTRACT_ADDRESS, PANCAKE_CONTRACT_ABI, BASE_TOKEN_CONTRACT_ADDRESS, BLOCKCHAIN_BLOCK_EXPLORER, TRANSACTION_STATUS} from './constants.js'
 import { getNetworkGasPrice } from './blockchain/utils';
 import TokenSymbol  from './TokenSymbol'; 
 import TokenBalance from './TokenBalance'; 
 import TransactionStatus from './TransactionStatus'; 
+import ContractTextField from './ContractTextField'; 
 
 function BuyToken()
 {
@@ -15,13 +15,14 @@ function BuyToken()
         noOfBNBToBuy:0,
         slippage:10
       });
+      /*
     const [currentToken, setTokenProperty] = useState({
         price: "0.000000",
         ticker:"",
         qtyToBuy:0,
         startBuy:false
-      }); 
-    const [contractABI, setContractABI] = useState(0); 
+      });
+      */ 
 
     const [transactionHash, setTransactionHash] = useState({
         confirmedHash:'',
@@ -39,20 +40,11 @@ function BuyToken()
           [event.target.name]: value
         });
       }
-      const handleSubmit = (event) => {
-        event.preventDefault();
-        console.log(inputs.contractAddress + inputs.noOfBNBToBuy);
-        setTokenProperty({startBuy:true}); 
-        
-      }
-    const handleStopBuy = (event) => {
-        event.preventDefault();  
-       setTokenProperty({startBuy:true}); 
-    }
+     
 
     const handleStartBuy = (event) => {
         event.preventDefault();  
-        setTokenProperty({startBuy:false}); 
+        //setTokenProperty({startBuy:false}); 
         setVisible(visible =>!visible);
         if(visible){
             
@@ -88,7 +80,7 @@ function BuyToken()
         const pairAddress = [BASE_TOKEN_CONTRACT_ADDRESS, contract_id];
         const deadline = await web3.utils.toHex(Math.round(Date.now()/1000)+60*20); 
         
-            if(0 == inputs.slippage)
+            if(0 === inputs.slippage)
             {
                 inputs.slippage = 1; 
             }
@@ -107,7 +99,6 @@ function BuyToken()
             amountIN = newTokenInReserve - lossOfTokenDueToSlippage; 
             var BN1 = web3.utils.BN;
             const amountOutHex = new BN1(amountIN).toString();
-            const newAmountOutAfterSlippage = await web3.utils.toWei(amountOutHex); 
             console.log("Liquidity Reserve [BNB][NewToken]: "+ bnbTokenInReserve + " NewToken[]: " + newTokenInReserve ); 
             console.log(" Might Loss of Tokens due to Slippage: " + lossOfTokenDueToSlippage, " Guaranteed in Wallet: " + amountIN); 
             console.log("No of Tokens to Swap: " + amountOutHex);
@@ -144,7 +135,7 @@ function BuyToken()
     
         const signed_txn = await web3.eth.accounts.signTransaction(rawTransaction, WALLET_PRIVATE_KEY);
 
-        const tx_token = await web3.eth.sendSignedTransaction(signed_txn.rawTransaction)
+        await web3.eth.sendSignedTransaction(signed_txn.rawTransaction)
         .once('sending', function(payload){ 
             console.log("txn sending: " + payload); 
             })
@@ -193,73 +184,42 @@ function BuyToken()
             setTransactionStatus({status:TRANSACTION_STATUS.TRANACTIONO_COMPLETE_EXCEPTION});
         }
       
-
+        function getBuyTokenTxnStatus()
+        {
+            return transactionStatus.status; 
+        }
             
     }
     return (
         <>
-        <div>
-        <form onSubmit={handleSubmit}>
-              <label>Buy Token Contract Address: 
-                    <input 
-                    type="text" 
-                    name="contractAddress" 
-                    value={inputs.contractAddress || ""} 
-                    onChange={handleChange}
-                    />
-                    </label>
-                <p>
+        <div>        
+              <ContractTextField onChange={handleChange} title='Enter Valid Contract Address' name="contractAddress" />
+                    <br /><br /> 
                      {inputs.contractAddress.length >=42 &&
-                   
-                        <label> MaxAvailableToken (<TokenSymbol tokenAddress={inputs.contractAddress} />):: 
+                   <div>
+                         MaxAvailableToken (<TokenSymbol tokenAddress={inputs.contractAddress} />):: 
                                                         <TokenBalance tokenAddress={inputs.contractAddress} funcTokenBalance={setTokenBalance}/> 
-                        </label>                
-                     }
-                </p>
-                <p>
-                     {inputs.contractAddress.length >=42 &&
-                        <label>Number of BNB to spend: 
-                        <input 
-                        type="text" 
-                        name="noOfBNBToBuy"
-                        value={inputs.noOfBNBToBuy || ""} 
-                        onChange={handleChange}
-                        />
-                        </label>
-                    }
-                </p>                
-                <p>
-                    {inputs.contractAddress.length >=42 &&
-                        <label>Slippage in Percentage: 
-                        <input 
-                        type="text" 
-                        name="slippage"
-                        value={inputs.slippage || ""} 
-                        onChange={handleChange}
-                        />
-                        </label>
-                    }
-                </p> 
-            </form>
-            <div>
-                {inputs.contractAddress.length >=42 &&
+                     <br /><br />        
+                     <ContractTextField onChange={handleChange} title='Number of BNB to spend' name="noOfBNBToBuy" />
+                        
+                   
+                    <br /><br /> 
+                    <ContractTextField onChange={handleChange} title='Slippage in Percentage' name="slippage" />
+                   
+                    <br /><br /> 
                     <Button OnClick={handleStartBuy} title={visible ? "Start Buy" : "Stop Buy" } > </Button> 
-                }
-            </div>
-            <p>
-                <label>
-                 {transactionStatus.status !== TRANSACTION_STATUS.TRANSACTION_NOT_STARTED &&
-                    <TransactionStatus  status={transactionStatus.status} /> 
-                 }
-                 </label>
-            </p>
-            <p> 
-                {transactionStatus.status !== TRANSACTION_STATUS.TRANSACTION_NOT_STARTED &&
-                    <label> Transaction Hash:  
-                        <a href ={transactionHash.confirmedHash} target="_blank"> {transactionHash.confirmedHash} </a>
-                    </label>
-                }
-            </p>
+                    </div>
+                    } 
+           
+                    {transactionStatus.status !== TRANSACTION_STATUS.TRANSACTION_NOT_STARTED &&
+                        <TransactionStatus  status={transactionStatus.status} /> 
+                    }
+                
+                    {transactionStatus.status !== TRANSACTION_STATUS.TRANSACTION_NOT_STARTED &&
+                        <label> Transaction Hash:  
+                            <a href ={transactionHash.confirmedHash} target="_blank" rel="noopener noreferrer"> {transactionHash.confirmedHash} </a>
+                        </label>
+                    }
         </div>
         </>
     );

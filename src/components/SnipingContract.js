@@ -5,17 +5,10 @@ import Button from './Button';
 import web3 from './blockchain/web3'
 import TokenSymbol  from './TokenSymbol'; 
 import { getNetworkGasPrice } from './blockchain/utils';
-import TokenBalance from './TokenBalance'; 
 import TransactionStatus from './TransactionStatus'; 
+import ContractTextField from './ContractTextField'; 
 import {WALLET_PRIVATE_KEY, ROUTER_CONTRACT_ADDRESS, PANCAKE_CONTRACT_ABI, BASE_TOKEN_CONTRACT_ADDRESS, BLOCKCHAIN_BLOCK_EXPLORER, TRANSACTION_STATUS, POLLING_BLOCKCHAIN_INTERVAL} from './constants'
 
-
-const eSnipingStatus = {
-    NOT_STARTED:0,
-    STARTED:1,
-    IN_PROGRESS:2,
-    STOPPED:3
-};
 
 function SnipingContract() {
     const [inputs, setInputs] = useState({
@@ -41,7 +34,6 @@ function SnipingContract() {
     const [timerID, setTimerID] = useState({
       snipeTokenTimerID:0
     }); 
-    const [txnParams, setTxnParams] = useState(''); 
 
 
 
@@ -67,8 +59,9 @@ function SnipingContract() {
           setTransactionHash({confirmedHash:''});
           setTransactionStatus({status:TRANSACTION_STATUS.TRANSACTION_IN_PROGRESS});
           walletInfo.contractID = new web3.eth.Contract(PANCAKE_CONTRACT_ABI, ROUTER_CONTRACT_ADDRESS);          
-          const intervalID = setInterval( startSnipeToken, 10000 /*POLLING_BLOCKCHAIN_INTERVAL.INTERVAL_SELL_CONTRACT*/); 
+          const intervalID = setInterval( startSnipeToken, POLLING_BLOCKCHAIN_INTERVAL.INTERVAL_SELL_CONTRACT); 
           timerID.snipeTokenTimerID = intervalID; 
+          setTimerID(timerID, intervalID);
       }
       else
       {
@@ -182,53 +175,31 @@ function SnipingContract() {
   }
 
   
-
+function getSnipingTokenTxnStatus()
+{
+    return transactionStatus.status; 
+}
     
   
     return (
         <>
-            <form >
-              <label>Sniping Token Contract Address: 
-                  <input 
-                  type="text" 
-                  name="contractAddress" 
-                  value={inputs.contractAddress || ""} 
-                  onChange={handleChange}
-                  />
-                </label>
-                <p>
-                  
+          <div>
+                <ContractTextField onChange={handleChange} title='Enter Valid Contract Address' name="contractAddress" />
+                 <br /><br />
                   {inputs.contractAddress.length >=42 &&
-                      <label> Quantity of BNB to Buy:
-                        <input 
-                        type="text" 
-                        name="noOfTokensToBuy"
-                        value={inputs.noOfTokensToBuy || ""} 
-                        onChange={handleChange}
-                        />
-                      </label>
-                    }
-                      <br /><br />
-                       {inputs.contractAddress.length >=42 &&
-                      <label>
-                        Transaction Slippage (%):
-                        <input 
-                        type="text" 
-                        name="slippage"
-                        value={inputs.slippage || ""} 
-                        onChange={handleChange}
-                        />
-                        </label>
-                      }
+                 <div>
+                      <ContractTextField onChange={handleChange} title='Quantity of BNB to Snipe' name="noOfTokensToBuy" value={inputs.noOfTokensToBuy} />
+                       <br /> <br />
+                      <ContractTextField onChange={handleChange} title='Transaction Slippage (%)' name="slippage" value={inputs.slippage} />
+                      </div>
+                  }
 
-                    <br />
+                    <br /> <br />
                      {inputs.contractAddress.length >=42 && inputs.noOfTokensToBuy !==0 &&
                     <Button OnClick={handleSnipe} title={visible ? "Start Snipe" : "Stop Snipe" } /> 
                  }
-                </p>
-            </form>
             <hr />
-            <p>
+            
                {transactionStatus.status !== TRANSACTION_STATUS.TRANSACTION_NOT_STARTED &&
                   <label>
                     Sniping Contract Address: {inputs.contractAddress}
@@ -239,12 +210,10 @@ function SnipingContract() {
                         
                           
                         Transaction Hash:  
-                                <a href ={transactionHash.confirmedHash} target="_blank"> {transactionHash.confirmedHash} </a>
+                                <a href ={transactionHash.confirmedHash} target="_blank" rel="noopener noreferrer"> {transactionHash.confirmedHash} </a>
                   </label>
                 }
-            </p>
-           
-            
+            </div>
       </>
     )
   }

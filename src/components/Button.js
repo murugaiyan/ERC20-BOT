@@ -5,7 +5,7 @@ function Button (props) {
 
     return(
         <>
-        <button
+        <button 
             className="load-button"
             onClick={props.OnClick}
         >
