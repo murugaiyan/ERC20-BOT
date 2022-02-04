@@ -2,6 +2,7 @@ import {useState} from 'react';
 import Button from './Button';
 import web3 from './blockchain/web3'
 import {WALLET_PRIVATE_KEY, ROUTER_CONTRACT_ADDRESS, PANCAKE_CONTRACT_ABI, BASE_TOKEN_CONTRACT_ADDRESS, BLOCKCHAIN_BLOCK_EXPLORER, TRANSACTION_STATUS} from './constants.js'
+import {  utilsSetBuyTokenTxnStatus} from './blockchain/utils';
 import { getNetworkGasPrice } from './blockchain/utils';
 import TokenSymbol  from './TokenSymbol'; 
 import TokenBalance from './TokenBalance'; 
@@ -57,7 +58,7 @@ function BuyToken()
         try
         {
         setTransactionHash({confirmedHash:''});
-        setTransactionStatus({status:TRANSACTION_STATUS.TRANSACTION_IN_PROGRESS}); 
+        utilsSetBuyTokenTxnStatus(TRANSACTION_STATUS.TRANSACTION_IN_PROGRESS); 
         const senderAddress = await web3.eth.accounts.privateKeyToAccount(WALLET_PRIVATE_KEY).address;
        
         const contract_id = await web3.utils.toChecksumAddress(inputs.contractAddress); 
@@ -154,16 +155,16 @@ function BuyToken()
             })
         .on('error', function(error){ 
             console.log("OnError: "+ error); 
-            setTransactionStatus({status:TRANSACTION_STATUS.TRANSACTION_COMPLETE_FAILED}); 
+            utilsSetBuyTokenTxnStatus(TRANSACTION_STATUS.TRANSACTION_COMPLETE_FAILED); 
             })
         .then(function(receipt){
             if(receipt.status)
             {
-                setTransactionStatus({status:TRANSACTION_STATUS.TRANSACTION_COMPLETE_SUCCESS}); 
+                utilsSetBuyTokenTxnStatus(TRANSACTION_STATUS.TRANSACTION_COMPLETE_SUCCESS); 
             }
             else
             {
-                setTransactionStatus({status:TRANSACTION_STATUS.TRANSACTION_COMPLETE_FAILED}); 
+                utilsSetBuyTokenTxnStatus(TRANSACTION_STATUS.TRANSACTION_COMPLETE_FAILED); 
             }
             console.log("confirmed receipt: "+ receipt.status); 
             setVisible(visible, true); 
@@ -172,7 +173,7 @@ function BuyToken()
         .catch(function(error) {
             console.log("exception: " + error);
             setVisible(visible, true); 
-            setTransactionStatus({status:TRANSACTION_STATUS.TRANACTIONO_COMPLETE_EXCEPTION});
+            utilsSetBuyTokenTxnStatus(TRANSACTION_STATUS.TRANACTIONO_COMPLETE_EXCEPTION);
         }
         );
               
@@ -181,12 +182,13 @@ function BuyToken()
         {
             console.log("Exception: " + error); 
             setVisible(visible, true); 
-            setTransactionStatus({status:TRANSACTION_STATUS.TRANACTIONO_COMPLETE_EXCEPTION});
+            utilsSetBuyTokenTxnStatus(TRANSACTION_STATUS.TRANACTIONO_COMPLETE_EXCEPTION);
         }
       
-        function getBuyTokenTxnStatus()
+        function setBuyTokenTxnStatus(txnStatus)
         {
-            return transactionStatus.status; 
+            utilsSetBuyTokenTxnStatus(txnStatus); 
+            setTransactionStatus({status:txnStatus});
         }
             
     }

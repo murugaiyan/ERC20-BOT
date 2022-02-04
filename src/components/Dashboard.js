@@ -1,10 +1,9 @@
-import getApproveTokenTxnStatus from './Approve'
-import getSnipeTokenTxnStatus from './SnipingContract'; 
-import getSellTokenTxnStatus from './SellToken'; 
-import getBuyTokenTxnStatus from './BuyToken'; 
+
 import TransactionStatus from './TransactionStatus'; 
 import {TRANSACTION_STATUS} from './constants.js'
 import {useState} from 'react'; 
+import {utilsGetApproveTokenTxnStatus, utilsGetSnipeTokenTxnStatus, utilsGetBuyTokenTxnStatus, utilsGetSellTokenTxnStatus} from './blockchain/utils'
+
 function Dashboard()
 {
    
@@ -16,19 +15,10 @@ function Dashboard()
 
     }); 
 
-    txnStatus.snipingStatus = getSnipeTokenTxnStatus(); 
-    txnStatus.approvalStatus = getApproveTokenTxnStatus(); 
-    txnStatus.buyStatus = getBuyTokenTxnStatus(); 
-    txnStatus.sellStatus = getSellTokenTxnStatus(); 
-
-    console.log("Dashboard Sell Status: ", txnStatus.sellStatus); 
-
-/*
-    setTxnStatus({...txnStatus, snipingStatus:getSnipeTokenTxnStatus() }); 
-    setTxnStatus({...txnStatus, approvalStatus:getApproveTokenTxnStatus() }); 
-    setTxnStatus({...txnStatus, buyStatus:getBuyTokenTxnStatus() }); 
-    setTxnStatus({...txnStatus, sellStatus:getSellTokenTxnStatus() }); 
-  */     
+    txnStatus.snipingStatus = utilsGetApproveTokenTxnStatus(); 
+    txnStatus.approvalStatus = utilsGetSnipeTokenTxnStatus(); 
+    txnStatus.buyStatus = utilsGetBuyTokenTxnStatus(); 
+    txnStatus.sellStatus = utilsGetSellTokenTxnStatus(); 
    
     return (
         <>

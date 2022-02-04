@@ -9,7 +9,7 @@ import TransactionStatus from './TransactionStatus';
 import ContractTextField from './ContractTextField'; 
 import {useState} from 'react'; 
 import {WALLET_PRIVATE_KEY, ROUTER_CONTRACT_ADDRESS, BLOCKCHAIN_NODE_PROVIDER, BLOCKCHAIN_BLOCK_EXPLORER, TRANSACTION_STATUS} from './constants.js'
-
+import {utilsSetApproveTokenTxnStatus} from './blockchain/utils'
 
 function Approve() {
 
@@ -50,7 +50,7 @@ function Approve() {
         
         try {
             setTransactionHash({confirmedHash:''});
-            setTransactionStatus({status:TRANSACTION_STATUS.TRANSACTION_IN_PROGRESS}); 
+            setApproveTokenTxnStatus(TRANSACTION_STATUS.TRANSACTION_IN_PROGRESS); 
             const senderAddress = await web3.eth.accounts.privateKeyToAccount(WALLET_PRIVATE_KEY).address;
             console.log("Approve Token Contract Address: " + inputs.contractAddress); 
             console.log("Approve Token Sender Address: " + senderAddress); 
@@ -72,17 +72,19 @@ function Approve() {
                                 }); 
             
             console.log('approve tx: ' +  BLOCKCHAIN_BLOCK_EXPLORER+data.hash);
+            setApproveTokenTxnStatus(TRANSACTION_STATUS.TRANSACTION_COMPLETE_SUCCESS); 
             setTransactionHash({confirmedHash:BLOCKCHAIN_BLOCK_EXPLORER+data.hash});
-            setTransactionStatus({status:TRANSACTION_STATUS.TRANSACTION_COMPLETE_SUCCESS}); 
+            
         }
         catch(error)
         {
-            setTransactionStatus({status:TRANSACTION_STATUS.TRANSACTION_COMPLETE_EXCEPTION}); 
+            setApproveTokenTxnStatus(TRANSACTION_STATUS.TRANSACTION_COMPLETE_EXCEPTION); 
             console.log("Approve Exception: " + error); 
         }
-        function getApproveTokenTxnStatus()
+        function setApproveTokenTxnStatus(txnStatus)
         {
-            return transactionStatus.status; 
+            setTransactionStatus({status:txnStatus}); 
+            utilsSetApproveTokenTxnStatus(txnStatus); 
         }
       }
 

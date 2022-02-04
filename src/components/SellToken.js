@@ -12,6 +12,7 @@ import Checkbox from '@mui/material/Checkbox';
 import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import {WALLET_PRIVATE_KEY, ROUTER_CONTRACT_ADDRESS, PANCAKE_CONTRACT_ABI, BASE_TOKEN_CONTRACT_ADDRESS, BLOCKCHAIN_BLOCK_EXPLORER, TRANSACTION_STATUS, POLLING_BLOCKCHAIN_INTERVAL} from './constants'
+import {utilsSetSellTokenTxnStatus} from './blockchain/utils'
 
 
 function SellToken(props)
@@ -84,7 +85,7 @@ function SellToken(props)
         setVisible(visible =>!visible);
         if(visible){
             setTransactionHash({confirmedHash:''});
-            setTransactionStatus({status:TRANSACTION_STATUS.TRANSACTION_IN_PROGRESS});
+            setSellTokenTxnStatus(TRANSACTION_STATUS.TRANSACTION_IN_PROGRESS);
             const tmpInitialPrice = await getTokenPrice(inputs.contractAddress); 
             setTokenProperty({...currentToken, initialPrice:tmpInitialPrice}); 
             const tmpX = parseInt(inputs.noOfX); 
@@ -136,7 +137,7 @@ function SellToken(props)
                 setInputs({...inputs, noOfX:0}); 
             }
             
-            setTransactionStatus({status:TRANSACTION_STATUS.TRANSACTION_NOT_STARTED});
+            setSellTokenTxnStatus(TRANSACTION_STATUS.TRANSACTION_NOT_STARTED);
         }
         
     }
@@ -261,40 +262,40 @@ function SellToken(props)
              })
             .on('error', function(error){ 
                 console.log("OnError: "+ error); 
-                setTransactionStatus({status:TRANSACTION_STATUS.TRANSACTION_COMPLETE_FAILED}); 
+                setSellTokenTxnStatus(TRANSACTION_STATUS.TRANSACTION_COMPLETE_FAILED); 
              })
             .then(function(receipt){
                 console.log("confirmed receipt: "+ receipt.status); 
                 if(receipt.status)
                 {
-                    setTransactionStatus({status:TRANSACTION_STATUS.TRANSACTION_COMPLETE_SUCCESS}); 
+                    setSellTokenTxnStatus(TRANSACTION_STATUS.TRANSACTION_COMPLETE_SUCCESS); 
                 }
                 else
                 {
-                    setTransactionStatus({status:TRANSACTION_STATUS.TRANSACTION_COMPLETE_FAILED}); 
+                    setSellTokenTxnStatus(TRANSACTION_STATUS.TRANSACTION_COMPLETE_FAILED); 
                 }
                  setVisible(visible, true); 
             })
             .catch(function(error) {
                 console.log("exception");
-                setTransactionStatus({status:TRANSACTION_STATUS.TRANACTIONO_COMPLETE_EXCEPTION});
+                setSellTokenTxnStatus(TRANSACTION_STATUS.TRANACTIONO_COMPLETE_EXCEPTION); 
                 setVisible(visible, true); 
             }
             );
         }
         catch(error)
         {
-            setTransactionStatus({status:TRANSACTION_STATUS.TRANACTIONO_COMPLETE_EXCEPTION});
+            setSellTokenTxnStatus(TRANSACTION_STATUS.TRANACTIONO_COMPLETE_EXCEPTION); 
             setVisible(visible, true); 
             console.log("startSellToken-Exception: " + error)
         }
             
     }
 
-    function getSellTokenTxnStatus()
+    function setSellTokenTxnStatus(txnStatus)
     {
-        console.log("getSellTokenTxnStatus: ", transactionStatus.status); 
-        return transactionStatus.status; 
+        setTransactionStatus({status:txnStatus}); 
+        utilsSetSellTokenTxnStatus(txnStatus);
     }
 
     return(

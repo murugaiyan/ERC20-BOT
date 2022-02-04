@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import Stack from '@mui/material/Stack';
 import Alert from '@mui/material/Alert';
 import {TRANSACTION_STATUS} from './constants.js'
 import "react-loader-spinner/dist/loader/css/react-spinner-loader.css";
@@ -27,12 +28,18 @@ function TransactionStatus(props)
         txnStatus.severity = 'info'; 
         txnStatus.statusMsg = 'Transaction In Progress'; 
     }
+    else
+    {
+        txnStatus.severity = 'warning'; 
+        txnStatus.statusMsg = 'Transaction Not Started'; 
+    }
 
     return(
         <>
-        <Alert severity={txnStatus.severity}>Transaction Status: {txnStatus.statusMsg}</Alert>
+        <Stack sx={{ width: '30%' }} spacing={2}>
+        <Alert  severity={txnStatus.severity}>Transaction Status: {txnStatus.statusMsg}</Alert>
         {txnStatus.severity === 'info' && < Oval className='OvalStyle'/>}
-        
+        </Stack>
         </>
     ); 
 }

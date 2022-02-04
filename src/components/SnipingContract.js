@@ -8,6 +8,7 @@ import { getNetworkGasPrice } from './blockchain/utils';
 import TransactionStatus from './TransactionStatus'; 
 import ContractTextField from './ContractTextField'; 
 import {WALLET_PRIVATE_KEY, ROUTER_CONTRACT_ADDRESS, PANCAKE_CONTRACT_ABI, BASE_TOKEN_CONTRACT_ADDRESS, BLOCKCHAIN_BLOCK_EXPLORER, TRANSACTION_STATUS, POLLING_BLOCKCHAIN_INTERVAL} from './constants'
+import {utilsSetSnipeTokenTxnStatus} from './blockchain/utils'
 
 
 function SnipingContract() {
@@ -57,7 +58,7 @@ function SnipingContract() {
           console.log("Wallet Address:" + address); 
           walletInfo.senderAddress = address; 
           setTransactionHash({confirmedHash:''});
-          setTransactionStatus({status:TRANSACTION_STATUS.TRANSACTION_IN_PROGRESS});
+          setSnipingTokenTxnStatus(TRANSACTION_STATUS.TRANSACTION_IN_PROGRESS);
           walletInfo.contractID = new web3.eth.Contract(PANCAKE_CONTRACT_ABI, ROUTER_CONTRACT_ADDRESS);          
           const intervalID = setInterval( startSnipeToken, POLLING_BLOCKCHAIN_INTERVAL.INTERVAL_SELL_CONTRACT); 
           timerID.snipeTokenTimerID = intervalID; 
@@ -66,7 +67,7 @@ function SnipingContract() {
       else
       {
          console.log("Stopped Snipper "); 
-         setTransactionStatus({status:TRANSACTION_STATUS.TRANSACTION_NOT_STARTED});
+         setSnipingTokenTxnStatus(TRANSACTION_STATUS.TRANSACTION_NOT_STARTED);
           
           clearInterval(timerID.snipeTokenTimerID); 
       }
@@ -151,22 +152,22 @@ function SnipingContract() {
                     })
                     .on('error', function(error){ 
                         console.log("OnError: "+ error); 
-                        setTransactionStatus({status:TRANSACTION_STATUS.TRANSACTION_COMPLETE_FAILED}); 
+                        setSnipingTokenTxnStatus(TRANSACTION_STATUS.TRANSACTION_COMPLETE_FAILED); 
                     })
                     .then(function(receipt){
                         console.log("confirmed receipt: "+ receipt.status); 
                         if(receipt.status)
                         {
-                            setTransactionStatus({status:TRANSACTION_STATUS.TRANSACTION_COMPLETE_SUCCESS}); 
+                            setSnipingTokenTxnStatus(TRANSACTION_STATUS.TRANSACTION_COMPLETE_SUCCESS); 
                         }
                         else
                         {
-                            setTransactionStatus({status:TRANSACTION_STATUS.TRANSACTION_COMPLETE_FAILED}); 
+                            setSnipingTokenTxnStatus(TRANSACTION_STATUS.TRANSACTION_COMPLETE_FAILED); 
                         }
                     })
                     .catch(function(error) {
                         console.log("exception");
-                        setTransactionStatus({status:TRANSACTION_STATUS.TRANACTIONO_COMPLETE_EXCEPTION});
+                        setSnipingTokenTxnStatus(TRANSACTION_STATUS.TRANACTIONO_COMPLETE_EXCEPTION);
                     }
                     );              
           
@@ -175,9 +176,10 @@ function SnipingContract() {
   }
 
   
-function getSnipingTokenTxnStatus()
+function setSnipingTokenTxnStatus(txnStatus)
 {
-    return transactionStatus.status; 
+     setTransactionStatus({status:txnStatus});
+     utilsSetSnipeTokenTxnStatus(txnStatus); 
 }
     
   
