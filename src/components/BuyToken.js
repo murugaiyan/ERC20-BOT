@@ -195,7 +195,7 @@ function BuyToken()
     return (
         <>
         <div>        
-              <ContractTextField onChange={handleChange} title='Enter Valid Contract Address' name="contractAddress" />
+              <ContractTextField onChange={handleChange} title='Buy Token Contract Address' name="contractAddress" />
                     <br /><br /> 
                      {inputs.contractAddress.length >=42 &&
                    <div>

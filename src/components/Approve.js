@@ -91,7 +91,7 @@ function Approve() {
     return (
         <>    
            <div>
-              <ContractTextField onChange={handleChange} title='Enter Valid Contract Address' name="contractAddress" />
+              <ContractTextField onChange={handleChange} title='Approval Token Contract Address' name="contractAddress" />
                   
                     <br /> 
                     {inputs.contractAddress.length >=42 &&

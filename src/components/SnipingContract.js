@@ -186,7 +186,7 @@ function setSnipingTokenTxnStatus(txnStatus)
     return (
         <>
           <div>
-                <ContractTextField onChange={handleChange} title='Enter Valid Contract Address' name="contractAddress" />
+                <ContractTextField onChange={handleChange} title='Snipe Token Contract Address' name="contractAddress" />
                  <br /><br />
                   {inputs.contractAddress.length >=42 &&
                  <div>
