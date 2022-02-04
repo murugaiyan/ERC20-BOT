@@ -27,7 +27,9 @@ BOT Installation Guide
 - start using bot features from UI
 
 Note: correct private key in .env.xxxxxxx file needs to be updated before running this app. Otherwise this application won't work.
+
 BSC Mainnet:
 npm run start-bsc-mainnet
+
 BSC-Testnet
 npm run start-bsc-testnet
