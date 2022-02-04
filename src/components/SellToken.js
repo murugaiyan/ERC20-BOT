@@ -102,23 +102,21 @@ function SellToken(props)
                 setDelayedSellTimerID(tmpTimerID); 
 
             }
-            else
+            
+            if(tmpX === 0)
             {
-                if(tmpX === 0)
-                {
-                    setTokenProperty({...currentToken,targetPrice:tmpInitialPrice}); 
-                    startSellToken(); 
-                    //clearInterval(monitorPriceTimerID); 
-                }
-                else 
-                {
-                    const tmpTargetPrice = tmpX * tmpInitialPrice; 
-                    currentToken.targetPrice = tmpTargetPrice; 
-                    setTokenProperty({...currentToken,targetPrice:tmpTargetPrice}); 
-                    monitorTokenPrice(); 
-                    const intervalID = setInterval(monitorTokenPrice, POLLING_BLOCKCHAIN_INTERVAL.INTERVAL_SELL_CONTRACT);
-                    setMonitorPriceTimerID(intervalID); 
-                }
+                setTokenProperty({...currentToken,targetPrice:tmpInitialPrice}); 
+                startSellToken(); 
+                //clearInterval(monitorPriceTimerID); 
+            }
+            else 
+            {
+                const tmpTargetPrice = tmpX * tmpInitialPrice; 
+                currentToken.targetPrice = tmpTargetPrice; 
+                setTokenProperty({...currentToken,targetPrice:tmpTargetPrice}); 
+                monitorTokenPrice(); 
+                const intervalID = setInterval(monitorTokenPrice, POLLING_BLOCKCHAIN_INTERVAL.INTERVAL_SELL_CONTRACT);
+                setMonitorPriceTimerID(intervalID); 
             }
         }
         else

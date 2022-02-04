@@ -7,7 +7,7 @@ import { Oval } from  'react-loader-spinner';
 
 function TransactionStatus(props)
 {
-    const [txnStatus, setStatus] = useState({
+    const [txnStatus, ] = useState({
         severity:'error',
         statusMsg:'Not Started'
     }

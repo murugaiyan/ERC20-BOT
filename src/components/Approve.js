@@ -27,7 +27,7 @@ function Approve() {
 
     
 
-     const [tokenBalance, setTokenBalance] = useState(0); 
+    const [, setTokenBalance] = useState(0); 
     const ERC20ABI = [
         "function approve(address , uint256 )  returns (bool)",
         "function symbol()  view returns (string)"

@@ -7,7 +7,7 @@ import {utilsGetApproveTokenTxnStatus, utilsGetSnipeTokenTxnStatus, utilsGetBuyT
 function Dashboard()
 {
    
-    const [txnStatus, setTxnStatus] = useState( {
+    const [txnStatus, ] = useState( {
         snipingStatus:TRANSACTION_STATUS.TRANSACTION_NOT_STARTED,
         approvalStatus:TRANSACTION_STATUS.TRANSACTION_NOT_STARTED,
         buyStatus:TRANSACTION_STATUS.TRANSACTION_NOT_STARTED,
@@ -15,8 +15,8 @@ function Dashboard()
 
     }); 
 
-    txnStatus.snipingStatus = utilsGetApproveTokenTxnStatus(); 
-    txnStatus.approvalStatus = utilsGetSnipeTokenTxnStatus(); 
+    txnStatus.approvalStatus = utilsGetApproveTokenTxnStatus (); 
+    txnStatus.snipingStatus = utilsGetSnipeTokenTxnStatus(); 
     txnStatus.buyStatus = utilsGetBuyTokenTxnStatus(); 
     txnStatus.sellStatus = utilsGetSellTokenTxnStatus(); 
    

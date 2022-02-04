@@ -2,7 +2,7 @@ import {useState} from 'react';
 import {BLOCKCHAIN_CHAIN_ID_NETWORK, BLOCKCHAIN_CHAIN_ID} from './constants'
 function NetworkName()
 {
-    const [network, setName] = useState({
+    const [network, ] = useState({
         name:'unknown network'
     }); 
     
