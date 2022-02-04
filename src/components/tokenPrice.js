@@ -62,7 +62,7 @@ function setDecimals( number, decimals ){
 export async function getTokenPrice(kTokenContractAddress)
 {
     //console.log("Monitor token Contract address: ", kTokenContractAddress); 
-    let bnbPrice = await calcBNBPrice('0x55d398326f99059ff775485246999027b3197955') // query pancakeswap to get the price of BNB in USDT
+    let bnbPrice = await calcBNBPrice(BUSD_CONTRACT_ADDRESS) // query pancakeswap to get the price of BNB in USDT
     // Them amount of tokens to sell. adjust this value based on you need, you can encounter errors with high supply tokens when this value is 1.
     let tokens_to_sell = 1; 
     let priceInBnb = await calcSell(tokens_to_sell, kTokenContractAddress)/tokens_to_sell; // calculate TOKEN price in BNB

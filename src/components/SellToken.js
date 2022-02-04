@@ -190,33 +190,34 @@ function SellToken(props)
         
         const deadline = await web3.utils.toHex(Math.round(Date.now()/1000)+60*20); 
 
-        const inputTokenInWei = await web3.utils.toWei(inputs.noOfTokensToSell);
-        var  amountIN = web3.utils.toBN(inputTokenInWei); 
+        const inputTokenInWei = await web3.utils.toWei(inputs.noOfTokensToSell, 'ether');
+        //var  amountIN = web3.utils.toBN(inputTokenInWei); 
         console.log("Nof of Tokens to Sell: " + inputs.noOfTokensToSell + " Slippage(%): " + inputs.slippage ); 
         
-        const amount_out = await sellTokenContract.methods.getAmountsOut(amountIN, [contract_id, BASE_TOKEN_CONTRACT_ADDRESS]).call();
+        const amount_out = await sellTokenContract.methods.getAmountsOut(inputTokenInWei, [contract_id, BASE_TOKEN_CONTRACT_ADDRESS]).call();
         const newTokenInReserve = await web3.utils.fromWei(amount_out[0]); 
         const bnbTokenInReserve = await web3.utils.fromWei(amount_out[1]); 
+
+        const amountIn = amount_out[0]; 
+        var slippageLoss = (amount_out[1] * inputs.slippage / 100); 
+        var amountOutMinInNo = amount_out[1] - slippageLoss; 
+
+        const amountOutMin = amountOutMinInNo.toString();
+
+        const slippageLossReadable = await web3.utils.fromWei(slippageLoss.toString()); 
+        const amountAmountAfterSlippage = await web3.utils.fromWei(amountOutMin); 
         
-        
-        const slippageLoss = (inputs.slippage/100);
-        
-        const lossOfTokenDueToSlippage = (bnbTokenInReserve * slippageLoss);
-        
-        var amountOutMin = bnbTokenInReserve - lossOfTokenDueToSlippage; 
-        var BN1 = web3.utils.BN;
-        const amountOutMinBN = new BN1(amountOutMin).toString();
         setSwaptoken({...swapToken, recvdToken:bnbTokenInReserve}); 
-        setSwaptoken({...swapToken, tokenLoss:lossOfTokenDueToSlippage}); 
-        setSwaptoken({...swapToken, guarnteedToken:amountOutMinBN}); 
-        const newAmountOutAfterSlippage = await web3.utils.toWei(amountOutMinBN); 
+        setSwaptoken({...swapToken, tokenLoss:slippageLossReadable}); 
+        setSwaptoken({...swapToken, guarnteedToken:amountAmountAfterSlippage}); 
+
         console.log("Liquidity Reserve [NewToken][BNB]: "+ newTokenInReserve + " NewToken[]: " +  bnbTokenInReserve); 
-        console.log(" Might Loss of Tokens due to Slippage: " + lossOfTokenDueToSlippage + " Guaranteed in Wallet: " + amountOutMin + " TotalSwapBNB: " + bnbTokenInReserve); 
+        console.log(" Might Loss of Tokens due to Slippage: " + slippageLossReadable + " Guaranteed in Wallet: " + amountOutMin + " TotalSwapBNB: " + bnbTokenInReserve); 
 
        
         var data = await sellTokenContract.methods.swapExactTokensForETH(
-            amountOutMinBN,
-            newAmountOutAfterSlippage,
+            amountIn,
+            amountOutMin,
             pairAddress,
             senderAddress,
             deadline
