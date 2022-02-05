@@ -31,7 +31,7 @@
     "start-bsc-testnet": "env-cmd -f .env.bsc.testnet react-scripts start",
     "start-bsc-mainnet": "env-cmd -f .env.bsc.mainnet react-scripts start",
     "start-goerili": "env-cmd -f .env.eth.goerili react-scripts start",
-    "start-eth-mainnet": "env-cmd -f .env.bsc.mainnet react-scripts start"
+    "start-eth-mainnet": "env-cmd -f .env.eth.mainnet react-scripts start"
   },
   "eslintConfig": {
     "extends": [
