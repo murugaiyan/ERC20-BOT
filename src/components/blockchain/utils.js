@@ -607,7 +607,7 @@ export async function getSwapPair(address1, tokenContractAddress) {
   } else if (BLOCKCHAIN_CHAIN_ID_NETWORK.BSC_MAINNET === BLOCKCHAIN_CHAIN_ID) {
     tokenRouter = new web3.eth.Contract(
       routerFactoryABI,
-      "0xBCfCcbde45cE874adCB698cC183deBcF17952812".toLowerCase()
+            "0xcA143Ce32Fe78f1f7019d7d551a6402fC5350c73".toLowerCase()
     );
   } else if (BLOCKCHAIN_CHAIN_ID_NETWORK.BSC_TESTNET === BLOCKCHAIN_CHAIN_ID) {
     tokenRouter = new web3.eth.Contract(

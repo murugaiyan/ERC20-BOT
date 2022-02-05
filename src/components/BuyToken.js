@@ -72,9 +72,6 @@ function BuyToken() {
             const contract_id = await web3.utils
                 .toChecksumAddress(inputs.contractAddress)
                 .toLowerCase();
-            console.log("contract id: " + contract_id);
-
-
 
             console.log("Buy  Token Contract Address: " + contract_id);
             //console.log("Buy Token Sender Address: " + senderAddress);

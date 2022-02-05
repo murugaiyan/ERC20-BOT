@@ -112,8 +112,8 @@ function SellToken(props) {
                 return;
             }
 
-            if ("0" === pairValid) {
-                console.log("Pair Invalid: ");
+            if (web3.utils.toBN(pairValid).isZero()) {
+                console.log("Pair Invalid: " + pairValid);
                 setSellTokenTxnStatus(TRANSACTION_STATUS.TRANSACTION_COMPLETE_EXCEPTION);
                 setVisible(visible, true);
                 return;
