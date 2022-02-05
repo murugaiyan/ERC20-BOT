@@ -19,6 +19,8 @@ import TokenSymbol from "./TokenSymbol";
 import TokenBalance from "./TokenBalance";
 import TransactionStatus from "./TransactionStatus";
 import ContractTextField from "./ContractTextField";
+import Typography from '@mui/material/Typography';
+
 
 function BuyToken() {
     const [inputs, setInputs] = useState({
@@ -222,68 +224,70 @@ function BuyToken() {
     return (
         <>
             <div>
-                <ContractTextField
-                    onChange={handleChange}
-                    title="Buy Token Contract Address"
-                    name="contractAddress"
-                />
-                <br />
-                <br />
-                {inputs.contractAddress.length >= 42 && (
-                    <div>
-                        MaxAvailableToken (
-                        <TokenSymbol tokenAddress={inputs.contractAddress} />
-                        )::
-                        <TokenBalance
-                            tokenAddress={inputs.contractAddress}
-                            funcTokenBalance={setTokenBalance}
-                        />
-                        <br />
-                        <br />
-                        <ContractTextField
-                            onChange={handleChange}
-                            title="Number of BNB to spend"
-                            name="noOfBNBToBuy"
-                        />
-                        <br />
-                        <br />
-                        <ContractTextField
-                            onChange={handleChange}
-                            title="Slippage in Percentage"
-                            name="slippage"
-                            value={inputs.slippage}
-                        />
-                        <br />
-                        <br />
-                        <Button
-                            OnClick={handleStartBuy}
-                            title={visible ? "Start Buy" : "Stop Buy"}
-                        >
-                            {" "}
-                        </Button>
-                    </div>
-                )}
-
-                {transactionStatus.status !==
-                    TRANSACTION_STATUS.TRANSACTION_NOT_STARTED && (
-                        <TransactionStatus status={transactionStatus.status} />
-                    )}
-
-                {transactionStatus.status !==
-                    TRANSACTION_STATUS.TRANSACTION_NOT_STARTED && (
-                        <label>
-                            {" "}
-                            Transaction Hash:
-                            <a
-                                href={transactionHash.confirmedHash}
-                                target="_blank"
-                                rel="noopener noreferrer"
+                <Typography variant="h6" component="div" gutterBottom>
+                    <ContractTextField
+                        onChange={handleChange}
+                        title="Buy Token Contract Address"
+                        name="contractAddress"
+                    />
+                    <br />
+                    <br />
+                    {inputs.contractAddress.length === 42 && (
+                        <div>
+                            MaxAvailableToken (
+                            <TokenSymbol tokenAddress={inputs.contractAddress} />
+                            )::
+                            <TokenBalance
+                                tokenAddress={inputs.contractAddress}
+                                funcTokenBalance={setTokenBalance}
+                            />
+                            <br />
+                            <br />
+                            <ContractTextField
+                                onChange={handleChange}
+                                title="Number of BNB to spend"
+                                name="noOfBNBToBuy"
+                            />
+                            <br />
+                            <br />
+                            <ContractTextField
+                                onChange={handleChange}
+                                title="Slippage in Percentage"
+                                name="slippage"
+                                value={inputs.slippage}
+                            />
+                            <br />
+                            <br />
+                            <Button
+                                OnClick={handleStartBuy}
+                                title={visible ? "Start Buy" : "Stop Buy"}
                             >
                                 {" "}
-                                {transactionHash.confirmedHash}{" "}
-                            </a>
-                        </label>
+                            </Button>
+                        </div>
                     )}
+
+                    {transactionStatus.status !==
+                        TRANSACTION_STATUS.TRANSACTION_NOT_STARTED && (
+                            <TransactionStatus status={transactionStatus.status} />
+                        )}
+
+                    {transactionStatus.status !==
+                        TRANSACTION_STATUS.TRANSACTION_NOT_STARTED && (
+                            <label>
+                                {" "}
+                                Transaction Hash:
+                                <a
+                                    href={transactionHash.confirmedHash}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                    {" "}
+                                    {transactionHash.confirmedHash}{" "}
+                                </a>
+                            </label>
+                        )}
+                </Typography>
             </div>
         </>
     );

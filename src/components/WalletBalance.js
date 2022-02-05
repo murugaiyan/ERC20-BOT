@@ -1,15 +1,14 @@
 import { useState } from 'react';
 import web3 from './blockchain/web3';
-import { WALLET_PRIVATE_KEY, POLLING_BLOCKCHAIN_INTERVAL} from './constants'
+import { WALLET_PRIVATE_KEY, POLLING_BLOCKCHAIN_INTERVAL } from './constants'
 
 
 function WalletBalance(props) {
-    
-        const [balance, setBalance] = useState('');
-        try {
+    const [balance, setBalance] = useState('');
+    try {
         setWalletBalance();
         setInterval(setWalletBalance, POLLING_BLOCKCHAIN_INTERVAL.INTERVAL_WALLET_BALANCE);
-        
+
         async function setWalletBalance() {
             const walletKey = WALLET_PRIVATE_KEY.toString();
             if (walletKey.length === 64) {
@@ -27,10 +26,10 @@ function WalletBalance(props) {
 
     return (
         <>
-        <label >{balance}</label>
+            <label >{balance}</label>
         </>
-    ); 
+    );
 }
 
-export default WalletBalance; 
+export default WalletBalance;
 
