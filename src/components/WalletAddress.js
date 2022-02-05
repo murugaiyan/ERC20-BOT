@@ -9,7 +9,7 @@ function WalletAddress(props)
     getWalletAddress(); 
     async function getWalletAddress()
     {
-        const senderAddress = await web3.eth.accounts.privateKeyToAccount(WALLET_PRIVATE_KEY).address;
+        const senderAddress = await web3.eth.accounts.privateKeyToAccount(WALLET_PRIVATE_KEY).address.toLowerCase();
         setAddress(senderAddress); 
     }
     
