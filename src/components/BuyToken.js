@@ -224,13 +224,13 @@ function BuyToken() {
     return (
         <>
             <div>
+                <br />
                 <Typography variant="h6" component="div" gutterBottom>
                     <ContractTextField
                         onChange={handleChange}
                         title="Buy Token Contract Address"
                         name="contractAddress"
                     />
-                    <br />
                     <br />
                     {inputs.contractAddress.length === 42 && (
                         <div>

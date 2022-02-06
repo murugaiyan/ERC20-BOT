@@ -1,19 +1,16 @@
-import Time from './components/Time'; 
-import Navigation from './components/Navigation';
-import WalletInfoDashboard from './components/WalletInfoDashboard';
+
+import DarkMode from './components/DarkMode';
+
+function App() {
 
 
-function App () {
-  
-
-return(
-  <>
-  <h2 align="center"> MURU BOT </h2>
-  <Time />
-  <WalletInfoDashboard />
-  <Navigation />
-  </>
-)
+  return (
+    <>
+      <div>
+        <DarkMode />
+      </div>
+    </>
+  )
 
 }
 

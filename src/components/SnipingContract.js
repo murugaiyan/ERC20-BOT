@@ -178,6 +178,7 @@ function SnipingContract() {
   return (
     <>
       <div>
+        <br />
         <Typography variant="h6" component="div" gutterBottom>
           <ContractTextField onChange={handleChange} title='Snipe Token Contract Address' name="contractAddress" />
           <br /><br />

@@ -358,6 +358,7 @@ function SellToken(props) {
     return (
         <>
             <div>
+                <br />
                 <Typography variant="h6" component="div" gutterBottom>
                     <ContractTextField
                         onChange={handleChange}
@@ -459,7 +460,7 @@ function SellToken(props) {
                                     No of Tokens Loss due to Slippage({inputs.slippage}%):{" "}
                                     {swapToken.tokenLoss}
                                     <br /> <br />
-                                    Current Token ((
+                                    Current Token (
                                     <TokenSymbol tokenAddress={inputs.contractAddress} />) Price:{" "}
                                     {currentToken.currentPrice}
                                     <hr></hr>

@@ -467,6 +467,7 @@ var txnStatus = {
     approvalStatus: TRANSACTION_STATUS.TRANSACTION_NOT_STARTED,
     buyStatus: TRANSACTION_STATUS.TRANSACTION_NOT_STARTED,
     sellStatus: TRANSACTION_STATUS.TRANSACTION_NOT_STARTED,
+    transferStatus: TRANSACTION_STATUS.TRANSACTION_NOT_STARTED
 };
 export async function getTokenSymbol(tokenAddres) {
     const tokenRouter = await new web3.eth.Contract(tokenAbi, tokenAddres);
@@ -559,6 +560,13 @@ export function utilsSetSellTokenTxnStatus(status) {
 }
 export function utilsGetSellTokenTxnStatus() {
     return txnStatus.sellStatus;
+}
+
+export function utilsSetTransferTokenTxnStatus(status) {
+    txnStatus.transferStatus = status;
+}
+export function utilsGetTransferTokenTxnStatus() {
+    return txnStatus.transferStatus;
 }
 
 export async function getContractObject() {

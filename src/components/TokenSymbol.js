@@ -13,7 +13,7 @@ function TokenSymbol(props)
 
     return(
         <>
-        <label >{symbol}</label>
+            <label ><b>{symbol}</b></label>
         </>
     ); 
 }
