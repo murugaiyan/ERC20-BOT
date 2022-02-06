@@ -51,7 +51,7 @@ function SellToken(props) {
         noOfXReached: 0,
         currentPrice: 0,
     });
-    const [swapToken, setSwaptoken] = useState({
+    const [swapToken,] = useState({
         tokenLoss: "",
         guarnteedToken: "",
         recvdToken: "",
@@ -120,6 +120,8 @@ function SellToken(props) {
                 return;
             }
 
+            const sellTokenContract = await getContractObject();
+            updateSlippageLossToken(sellTokenContract);
             var timeInSeconds = parseInt(inputs.delayedSell);
             if (timeInSeconds) {
                 timeInSeconds *= 1000;
@@ -198,26 +200,14 @@ function SellToken(props) {
         }
     }
 
-    async function startSellToken() {
+    async function updateSlippageLossToken(sellTokenContractID) {
+
+
+        var amountIn = '';
+        var amountOutMin = '';
         try {
-            const senderAddress = await web3.eth.accounts.privateKeyToAccount(
-                WALLET_PRIVATE_KEY
-            ).address;
-            console.log("Sell Token Wallet Address: " + senderAddress);
 
-            const sellTokenContract = await getContractObject();
-
-            const pairAddress = [contract_id, BASE_TOKEN_CONTRACT_ADDRESS];
-
-            const deadline = await web3.utils.toHex(
-                Math.round(Date.now() / 1000) + 60 * 20
-            );
-
-            const inputTokenInWei = await web3.utils.toWei(
-                inputs.noOfTokensToSell,
-                "ether"
-            );
-            //var  amountIN = web3.utils.toBN(inputTokenInWei);
+            const inputTokenInWei = await web3.utils.toWei(inputs.noOfTokensToSell, "ether");
             console.log(
                 "Nof of Tokens to Sell: " +
                 inputs.noOfTokensToSell +
@@ -225,49 +215,54 @@ function SellToken(props) {
                 inputs.slippage
             );
 
-            const amount_out = await sellTokenContract.methods
-                .getAmountsOut(inputTokenInWei, [
-                    contract_id,
-                    BASE_TOKEN_CONTRACT_ADDRESS,
-                ])
-                .call();
-            const newTokenInReserve = await web3.utils.fromWei(amount_out[0]);
-            const bnbTokenInReserve = await web3.utils.fromWei(amount_out[1]);
+            const amount_out = await sellTokenContractID.methods.getAmountsOut(inputTokenInWei, [contract_id, BASE_TOKEN_CONTRACT_ADDRESS,]).call();
+            const newTokenInReserve = web3.utils.fromWei(amount_out[0]);
+            const bnbTokenInReserve = web3.utils.fromWei(amount_out[1]);
 
-            const amountIn = amount_out[0];
+            amountIn = amount_out[0];
             var slippageLoss = (amount_out[1] * inputs.slippage) / 100;
+            slippageLoss = Math.round(slippageLoss);
+            slippageLoss = new web3.utils.BN(slippageLoss).toString();
             var amountOutMinInNo = amount_out[1] - slippageLoss;
+            amountOutMin = amountOutMinInNo.toString();
 
-            const amountOutMin = amountOutMinInNo.toString();
+            const slippageLossReadable = web3.utils.fromWei(slippageLoss);
+            const amountAmountAfterSlippage = web3.utils.fromWei(amountOutMin);
 
-            const slippageLossReadable = await web3.utils.fromWei(
-                slippageLoss.toString()
-            );
-            const amountAmountAfterSlippage = await web3.utils.fromWei(amountOutMin);
+            //setSwaptoken({ ...swapToken, guarnteedToken: amountAmountAfterSlippage });
+            //setSwaptoken({ ...swapToken, recvdToken: bnbTokenInReserve });
+            //setSwaptoken({ ...swapToken, tokenLoss: slippageLossReadable });
 
-            setSwaptoken({ ...swapToken, recvdToken: bnbTokenInReserve });
-            setSwaptoken({ ...swapToken, tokenLoss: slippageLossReadable });
-            setSwaptoken({ ...swapToken, guarnteedToken: amountAmountAfterSlippage });
+            swapToken.guarnteedToken = amountAmountAfterSlippage;
+            swapToken.recvdToken = bnbTokenInReserve;
+            swapToken.tokenLoss = slippageLossReadable;
 
-            console.log(
-                "Liquidity Reserve [NewToken][BNB]: " +
-                newTokenInReserve +
-                " NewToken[]: " +
-                bnbTokenInReserve
-            );
-            console.log(
-                " Might Loss of Tokens due to Slippage: " +
-                slippageLossReadable +
-                " Guaranteed in Wallet: " +
-                amountOutMin +
-                " TotalSwapBNB: " +
-                bnbTokenInReserve
-            );
+            console.log("Liquidity Reserve [NewToken][BNB]: " + newTokenInReserve + " NewToken[]: " + bnbTokenInReserve);
+            console.log(" Might Loss of Tokens due to Slippage: " + slippageLossReadable + " Guaranteed in Wallet: " + amountOutMin + " TotalSwapBNB: " + bnbTokenInReserve);
+        }
+        catch (error) {
+            console.log("updateSlippageLossToken: Exception: " + error);
+        }
 
+        return [amountIn, amountOutMin];
+    }
+
+    async function startSellToken() {
+        try {
+            const pairAddress = [contract_id, BASE_TOKEN_CONTRACT_ADDRESS];
+            const sellTokenContract = await getContractObject();
+
+            const senderAddress = await web3.eth.accounts.privateKeyToAccount(WALLET_PRIVATE_KEY).address;
+            console.log("Sell Token Wallet Address: " + senderAddress);
+
+            var swapAmount = [0, 0];
+            swapAmount = updateSlippageLossToken(sellTokenContract);
+
+            const deadline = web3.utils.toHex(Math.round(Date.now() / 1000) + 60 * 20);
 
             const data = await sellTokenContract.methods.swapExactTokensForETHSupportingFeeOnTransferTokens(
-                web3.utils.toHex(amountIn),
-                web3.utils.toHex(amountOutMin),
+                web3.utils.toHex(swapAmount[0]),
+                web3.utils.toHex(swapAmount[1]),
                 pairAddress,
                 senderAddress,
                 deadline
@@ -449,20 +444,19 @@ function SellToken(props) {
                                 <label>
                                     <hr></hr>
                                     <br />
-                                    Trying to sell quantity of tokens: {inputs.noOfTokensToSell}
+                                    <b>Quantity to sell: </b>{inputs.noOfTokensToSell} <b>NoOfXReached:</b>{currentToken.noOfXReached}
                                     <br /> <br />
-                                    InitialTokenPrice:{currentToken.initialPrice} TargetTokenPrice:
-                                    {currentToken.targetPrice} NoOfXReached:
-                                    {currentToken.noOfXReached}
-                                    <br /> <br />
-                                    Guaranteed Token Swap : {swapToken.guarnteedToken}
-                                    <br /> <br />
-                                    No of Tokens Loss due to Slippage({inputs.slippage}%):{" "}
-                                    {swapToken.tokenLoss}
-                                    <br /> <br />
-                                    Current Token (
-                                    <TokenSymbol tokenAddress={inputs.contractAddress} />) Price:{" "}
+                                    <b>Initial Price:</b>{currentToken.initialPrice}
+                                    <b> Target Price:</b>{currentToken.targetPrice}
+                                    <b> Current (
+                                        <TokenSymbol tokenAddress={inputs.contractAddress} />) Price:</b>
                                     {currentToken.currentPrice}
+                                    <br /> <br />
+                                    <b>Minimum Received: </b>{swapToken.guarnteedToken} <b>Maximum Received: </b>{swapToken.recvdToken}
+                                    <br /> <br />
+                                    <b>Loss due to Slippage:</b >({inputs.slippage}%):{swapToken.tokenLoss}
+                                    <br /> <br />
+
                                     <hr></hr>
                                     <br />
                                     <TransactionStatus status={transactionStatus.status} />
