@@ -32,7 +32,7 @@ function ContractTextField(props) {
 						classes:{
 							root:helperTextStyles.root
 						}}} */}
-                < TextField sx={{ width: "20%", textAlign: 'center' }} id="outlined-basic" label={props.title} variant="outlined" color="primary" focused
+                < TextField sx={{ width: "25%", textAlign: 'center' }} id="outlined-basic" label={props.title} variant="outlined" color="primary" focused
                     helperText={errorText}
                     name={props.name}
                     value={props.value}

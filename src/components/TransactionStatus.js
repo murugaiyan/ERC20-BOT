@@ -30,7 +30,7 @@ function TransactionStatus(props) {
 
     return (
         <>
-            <Stack sx={{ width: '15%' }} spacing={2}>
+            <Stack sx={{ width: '25%' }} spacing={2}>
                 <Alert severity={txnStatus.severity}>Transaction Status: {txnStatus.statusMsg}</Alert>
                 {txnStatus.severity === 'info' && < Oval className='OvalStyle' />}
             </Stack>
