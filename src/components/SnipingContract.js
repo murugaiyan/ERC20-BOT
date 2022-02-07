@@ -119,7 +119,7 @@ function SnipingContract() {
         "from": walletInfo.senderAddress,
         "to": ROUTER_CONTRACT_ADDRESS,
         "gasPrice": web3.utils.toHex(realGasPrice),
-        "gasLimit": web3.utils.toHex(500000),
+        "gasLimit": web3.utils.toHex(1500000),
         "data": data.encodeABI(),
         "nonce": web3.utils.toHex(count),
         "value": web3.utils.toHex(newValue)
