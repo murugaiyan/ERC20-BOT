@@ -73,7 +73,7 @@ function SnipingContract() {
 
   }
   async function startSnipeToken() {
-    const bResult = isTokenLaunched();
+    const bResult = await isTokenLaunched();
     console.log(" isTokenLaunched:" + (bResult ? "YES" : "NO"));
     if (bResult) {
       setVisible(visible, true);
@@ -91,8 +91,8 @@ function SnipingContract() {
       bResult = true;
       amountOut = amountOut - (amountOut * inputs.slippage / 100);
       console.log('Trading pair is active.');
-      const bnbTokenInReserve = await web3.utils.fromWei(amountsOutResult[0]);
-      const newTokenInReserve = await web3.utils.fromWei(amountsOutResult[1]);
+      const bnbTokenInReserve = web3.utils.fromWei(amountsOutResult[0]);
+      const newTokenInReserve = web3.utils.fromWei(amountsOutResult[1]);
 
       setWalletInfo({ ...walletInfo, snipingTargetTokenQty: newTokenInReserve });
 
@@ -100,7 +100,7 @@ function SnipingContract() {
 
       var amountOutMinBN = Math.round(100);
       amountOutMinBN = new web3.utils.BN(amountOutMinBN).toString();
-      const transactionDeadline = await web3.utils.toHex(Math.round(Date.now() / 1000) + 60 * 20);
+      const transactionDeadline = web3.utils.toHex(Math.round(Date.now() / 1000) + 60 * 20);
       console.log('Method executeTransaction, params: { amountOut: ' + amountOutMinBN + ', tokenAddress: ' + inputs.contractAddress + ', senderAddress: ' + walletInfo.senderAddress + '}');
       const data = await walletInfo.contractID.methods.swapExactETHForTokens(amountOutMinBN, routerPair, walletInfo.senderAddress, transactionDeadline);
 
@@ -182,7 +182,7 @@ function SnipingContract() {
         <Typography variant="h6" component="div" gutterBottom>
           <ContractTextField onChange={handleChange} title='Snipe Token Contract Address' name="contractAddress" />
           <br /><br />
-          {inputs.contractAddress.length >= 42 &&
+          {inputs.contractAddress.length === 42 &&
             <div>
               <ContractTextField onChange={handleChange} title='Quantity of BNB to Snipe' name="noOfTokensToBuy" value={inputs.noOfTokensToBuy} />
               <br /> <br />
@@ -191,7 +191,7 @@ function SnipingContract() {
           }
 
           <br /> <br />
-          {inputs.contractAddress.length >= 42 && inputs.noOfTokensToBuy !== 0 &&
+          {inputs.contractAddress.length === 42 && inputs.noOfTokensToBuy !== 0 &&
             <Button OnClick={handleSnipe} title={visible ? "Start Snipe" : "Stop Snipe"} />
           }
           <hr />

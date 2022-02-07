@@ -11,7 +11,7 @@ function WalletBalance(props) {
 
         async function setWalletBalance() {
             const walletKey = WALLET_PRIVATE_KEY.toString();
-            if (walletKey.length === 64) {
+            if ((walletKey.length === 64) || (walletKey.length === 66)) {
                 const senderAddress = await web3.eth.accounts.privateKeyToAccount(WALLET_PRIVATE_KEY).address;
                 const balance = await web3.eth.getBalance(senderAddress);
                 const balanceReadable = await web3.utils.fromWei(balance, 'ether');

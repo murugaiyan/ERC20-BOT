@@ -121,7 +121,7 @@ function SellToken(props) {
             }
 
             const sellTokenContract = await getContractObject();
-            updateSlippageLossToken(sellTokenContract);
+            await updateSlippageLossToken(sellTokenContract);
             var timeInSeconds = parseInt(inputs.delayedSell);
             if (timeInSeconds) {
                 timeInSeconds *= 1000;
@@ -222,29 +222,31 @@ function SellToken(props) {
             amountIn = amount_out[0];
             var slippageLoss = (amount_out[1] * inputs.slippage) / 100;
             slippageLoss = Math.round(slippageLoss);
-            slippageLoss = new web3.utils.BN(slippageLoss).toString();
-            var amountOutMinInNo = amount_out[1] - slippageLoss;
-            amountOutMin = amountOutMinInNo.toString();
 
-            const slippageLossReadable = web3.utils.fromWei(slippageLoss);
-            const amountAmountAfterSlippage = web3.utils.fromWei(amountOutMin);
+            var amountOutMinInNo = amount_out[1] - slippageLoss;
+            //amountOutMinInNo = Math.round(amountOutMinInNo);
+            //var BN1 = web3.utils.BN;
+            //amountOutMinInNo = new BN1(amountOutMinInNo);
+
+            const slippageLossReadable = web3.utils.fromWei(slippageLoss.toString());
+            const amountAmountAfterSlippage = amountOutMinInNo.toString();
 
             //setSwaptoken({ ...swapToken, guarnteedToken: amountAmountAfterSlippage });
             //setSwaptoken({ ...swapToken, recvdToken: bnbTokenInReserve });
             //setSwaptoken({ ...swapToken, tokenLoss: slippageLossReadable });
 
-            swapToken.guarnteedToken = amountAmountAfterSlippage;
+            swapToken.guarnteedToken = web3.utils.fromWei(amountAmountAfterSlippage);
             swapToken.recvdToken = bnbTokenInReserve;
             swapToken.tokenLoss = slippageLossReadable;
 
             console.log("Liquidity Reserve [NewToken][BNB]: " + newTokenInReserve + " NewToken[]: " + bnbTokenInReserve);
-            console.log(" Might Loss of Tokens due to Slippage: " + slippageLossReadable + " Guaranteed in Wallet: " + amountOutMin + " TotalSwapBNB: " + bnbTokenInReserve);
+            console.log(" Might Loss of Tokens due to Slippage: " + slippageLossReadable + " Guaranteed in Wallet: " + web3.utils.fromWei(amountAmountAfterSlippage) + " TotalSwapBNB: " + bnbTokenInReserve);
         }
         catch (error) {
             console.log("updateSlippageLossToken: Exception: " + error);
         }
 
-        return [amountIn, amountOutMin];
+        return [amountIn, amountOutMinInNo];
     }
 
     async function startSellToken() {
@@ -256,7 +258,7 @@ function SellToken(props) {
             console.log("Sell Token Wallet Address: " + senderAddress);
 
             var swapAmount = [0, 0];
-            swapAmount = updateSlippageLossToken(sellTokenContract);
+            swapAmount = await updateSlippageLossToken(sellTokenContract);
 
             const deadline = web3.utils.toHex(Math.round(Date.now() / 1000) + 60 * 20);
 

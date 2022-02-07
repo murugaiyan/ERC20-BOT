@@ -106,15 +106,15 @@ function BuyToken() {
             const amount_out = await buyTokenContract.methods
                 .getAmountsOut(amountIN, pairAddress)
                 .call();
-            const bnbTokenInReserve = await web3.utils.fromWei(amount_out[0]);
-            const newTokenInReserve = await web3.utils.fromWei(amount_out[1]);
+            const bnbTokenInReserve = web3.utils.fromWei(amount_out[0]);
+            const newTokenInReserve = web3.utils.fromWei(amount_out[1]);
 
             const slippageLoss = inputs.slippage / 100;
 
             const lossOfTokenDueToSlippage = newTokenInReserve * slippageLoss;
             amountIN = newTokenInReserve - lossOfTokenDueToSlippage;
             var BN1 = web3.utils.BN;
-            const amountOutHex = new BN1(amountIN).toString();
+            var amountOutHex = new BN1(amountIN).toString();
             console.log(
                 "Liquidity Reserve [BNB][NewToken]: " +
                 bnbTokenInReserve +
@@ -127,8 +127,10 @@ function BuyToken() {
             );
             console.log("No of Tokens to Swap: " + amountOutHex);
 
-            var data = await buyTokenContract.methods.swapETHForExactTokens(
-                web3.utils.toHex(amount_out[1]),
+            amountOutHex = web3.utils.toWei(amountOutHex);
+
+            var data = await buyTokenContract.methods.swapExactETHForTokensSupportingFeeOnTransferTokens /*swapETHForExactTokens*/(
+                web3.utils.toHex(amountOutHex),
                 pairAddress,
                 senderAddress,
                 deadline
@@ -139,6 +141,7 @@ function BuyToken() {
                 realGasPrice,
                 inputs.noOfBNBToBuy
             );
+            console.log("Sending Base Token Amount:" + newValue + " Base Token supposed to send: ", inputs.noOfBNBToBuy);
 
             var count = await web3.eth.getTransactionCount(senderAddress);
 
