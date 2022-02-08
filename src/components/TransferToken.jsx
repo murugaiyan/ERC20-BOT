@@ -7,7 +7,7 @@ import WalletBalance from './WalletBalance';
 import TransactionStatus from './TransactionStatus';
 import ContractTextField from './ContractTextField';
 import { useState } from 'react';
-import { WALLET_PRIVATE_KEY, BLOCKCHAIN_NODE_PROVIDER, BLOCKCHAIN_BLOCK_EXPLORER, TRANSACTION_STATUS, BASE_TOKEN_CONTRACT_ADDRESS } from './constants.js'
+import { WALLET_PRIVATE_KEY, BLOCKCHAIN_NODE_PROVIDER, BLOCKCHAIN_BLOCK_EXPLORER, TRANSACTION_STATUS, BASE_TOKEN_CONTRACT_ADDRESS } from './constants'
 import { utilsSetTransferTokenTxnStatus } from './blockchain/utils'
 import Typography from '@mui/material/Typography';
 

@@ -8,7 +8,7 @@ import {
   BLOCKCHAIN_CHAIN_ID,
   TRANSACTION_DEADLINE,
 } from "../constants";
-import web3 from "../blockchain/web3";
+import web3 from "./web3";
 
 const routerFactoryABI = [
   {

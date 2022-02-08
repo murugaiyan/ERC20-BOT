@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import web3 from './blockchain/web3';
-import { WALLET_PRIVATE_KEY} from './constants.js'
+import { WALLET_PRIVATE_KEY} from './constants'
 
 
 function WalletAddress(props)

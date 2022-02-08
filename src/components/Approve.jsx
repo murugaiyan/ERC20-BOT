@@ -8,7 +8,7 @@ import TokenBalance from './TokenBalance';
 import TransactionStatus from './TransactionStatus';
 import ContractTextField from './ContractTextField';
 import { useState } from 'react';
-import { WALLET_PRIVATE_KEY, ROUTER_CONTRACT_ADDRESS, BLOCKCHAIN_NODE_PROVIDER, BLOCKCHAIN_BLOCK_EXPLORER, TRANSACTION_STATUS } from './constants.js'
+import { WALLET_PRIVATE_KEY, ROUTER_CONTRACT_ADDRESS, BLOCKCHAIN_NODE_PROVIDER, BLOCKCHAIN_BLOCK_EXPLORER, TRANSACTION_STATUS } from './constants'
 import { utilsSetApproveTokenTxnStatus } from './blockchain/utils'
 import Typography from '@mui/material/Typography';
 

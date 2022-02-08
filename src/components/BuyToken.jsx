@@ -7,7 +7,7 @@ import {
   BLOCKCHAIN_BLOCK_EXPLORER,
   TRANSACTION_STATUS,
   ROUTER_CONTRACT_ADDRESS,
-} from "./constants.js";
+} from "./constants";
 import {
   utilsSetBuyTokenTxnStatus,
   getContractObject,

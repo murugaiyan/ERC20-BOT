@@ -1,6 +1,6 @@
 
 import TransactionStatus from './TransactionStatus';
-import { TRANSACTION_STATUS } from './constants.js'
+import { TRANSACTION_STATUS } from './constants'
 import { useState } from 'react';
 import { utilsGetApproveTokenTxnStatus, utilsGetSnipeTokenTxnStatus, utilsGetBuyTokenTxnStatus, utilsGetSellTokenTxnStatus, utilsGetTransferTokenTxnStatus } from './blockchain/utils'
 import Typography from '@mui/material/Typography';

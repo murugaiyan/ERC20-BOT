@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import Stack from '@mui/material/Stack';
 import Alert from '@mui/material/Alert';
-import { TRANSACTION_STATUS } from './constants.js'
+import { TRANSACTION_STATUS } from './constants'
 import { Oval } from 'react-loader-spinner';
 
 function TransactionStatus(props) {
