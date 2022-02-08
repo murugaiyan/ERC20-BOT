@@ -21,7 +21,7 @@ BOT Installation Guide
 - update your erc20 wallet private key in environment file .env.bsc.mainnet(this file might be hidden on mac).
 - Navigate to that path using terminal (mac) / cmd (windows)
 - run below cmd to install dependencies
-  - npm update
+  - npm install
 - run below command for bot app to start
   - npm run start-bsc-mainnet - this will launch dbot web application on browser localhost:3000
 - start using bot features from UI
