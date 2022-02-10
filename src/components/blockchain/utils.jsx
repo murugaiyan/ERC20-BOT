@@ -505,6 +505,7 @@ export async function getNetworkGasPrice(realGasPrice, noOfQtyToSendInBNB) {
 }
 
 export async function getTokenBalanceHumanReadable(tokenContractAddress) {
+  var tokenBalanceReadable = ''; 
   const senderAddress = await web3.eth.accounts.privateKeyToAccount(
     WALLET_PRIVATE_KEY
   ).address;
@@ -515,12 +516,25 @@ export async function getTokenBalanceHumanReadable(tokenContractAddress) {
   const tokenBalance = await tokenRouter.methods
     .balanceOf(senderAddress)
     .call();
-  const tokenBalanceReadable = web3.utils.fromWei(tokenBalance, "ether");
+
+    const tokenDecimals = await tokenRouter.methods
+    .decimals()
+    .call();
+  if(tokenDecimals === "9")
+  {
+      tokenBalanceReadable = web3.utils.fromWei(tokenBalance, "gwei");
+  }
+  else
+  {
+      tokenBalanceReadable = web3.utils.fromWei(tokenBalance, "ether");
+  }
+  
   //console.log ("utils: getTokenBalanceHumanReadable:" + tokenBalanceReadable);
   return tokenBalanceReadable;
 }
 
 export async function getTokenBalanceInWei(tokenContractAddress) {
+   var tokenBalance = ''; 
   const senderAddress = await web3.eth.accounts.privateKeyToAccount(
     WALLET_PRIVATE_KEY
   ).address;
@@ -528,9 +542,22 @@ export async function getTokenBalanceInWei(tokenContractAddress) {
     tokenAbi,
     tokenContractAddress.toLowerCase()
   );
-  const tokenBalance = await tokenRouter.methods
+  tokenBalance = await tokenRouter.methods
     .balanceOf(senderAddress)
     .call();
+
+    const tokenDecimals = await tokenRouter.methods
+    .decimals()
+    .call();
+
+  if(tokenDecimals === "9")
+  {
+      tokenBalance = web3.utils.fromWei(tokenBalance, "gwei");
+  }
+  else
+  {
+      tokenBalance = web3.utils.fromWei(tokenBalance, "ether");
+  }
   //console.log ("utils: getTokenBalanceInWei:" + tokenBalance);
   return tokenBalance;
 }
