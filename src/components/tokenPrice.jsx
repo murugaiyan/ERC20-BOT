@@ -67,6 +67,7 @@ function setDecimals(number, decimals) {
 }
 
 export async function getTokenPrice(kTokenContractAddress) {
+    var currentPrice = []; 
     //console.log("Monitor token Contract address: ", kTokenContractAddress);
     let bnbPrice = await calcBNBPrice(BUSD_CONTRACT_ADDRESS);
     let tokens_to_sell = 1;
@@ -76,5 +77,7 @@ export async function getTokenPrice(kTokenContractAddress) {
     //console.log(` VALUE IN USD: ${priceInUSD}`); // convert the token price from BNB to USD based on the retrived BNB value
     console.log(`*********CURRENT BNB PRICE: ${bnbPrice} CURRENT TOKEN IN USD: ${priceInUSD} ************`);
 
-    return priceInUSD;
+    currentPrice[0] = bnbPrice; 
+    currentPrice[1] = priceInUSD; 
+    return currentPrice;
 }

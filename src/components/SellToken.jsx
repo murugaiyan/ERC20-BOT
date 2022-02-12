@@ -32,7 +32,7 @@ function SellToken(props) {
   const [inputs, setInputs] = useState({
     contractAddress: "",
     noOfTokensToSell: 0,
-    noOfX: 0,
+    noOfX: 10,
     slippage: 10,
     delayedSell: 0,
     checked: false,
@@ -98,11 +98,12 @@ function SellToken(props) {
     if (visible) {
       setTransactionHash({ confirmedHash: "" });
       setSellTokenTxnStatus(TRANSACTION_STATUS.TRANSACTION_IN_PROGRESS);
-      const tmpInitialPrice = await getTokenPrice(inputs.contractAddress);
-      setTokenProperty({ ...currentToken, initialPrice: tmpInitialPrice });
+      const tmpInitialPrice  = await getTokenPrice(inputs.contractAddress);
+      const tokenInitPrice = tmpInitialPrice[1]; 
+      setTokenProperty({ ...currentToken, initialPrice: tokenInitPrice });
       const tmpX = parseInt(inputs.noOfX);
       setInputs({ ...inputs, noOfX: tmpX });
-      currentToken.initialPrice = tmpInitialPrice;
+      currentToken.initialPrice = tokenInitPrice;
       contract_id = await web3.utils
         .toChecksumAddress(inputs.contractAddress)
         .toLowerCase();
@@ -112,8 +113,8 @@ function SellToken(props) {
         contract_id
       );
 
-      if (0 >= tmpInitialPrice) {
-        console.log("Price Calculation is wrong: " + tmpInitialPrice);
+      if (0 >= tokenInitPrice) {
+        console.log("Price Calculation is wrong: " + tokenInitPrice);
         setSellTokenTxnStatus(
           TRANSACTION_STATUS.TRANSACTION_COMPLETE_EXCEPTION
         );
@@ -144,10 +145,10 @@ function SellToken(props) {
         );
         setDelayedSellTimerID(tmpTimerID);
       } else if (tmpX === 0) {
-        setTokenProperty({ ...currentToken, targetPrice: tmpInitialPrice });
+        setTokenProperty({ ...currentToken, targetPrice: tokenInitPrice });
         startSellToken();
       } else {
-        const tmpTargetPrice = tmpX * tmpInitialPrice;
+        const tmpTargetPrice = tmpX * tokenInitPrice;
         currentToken.targetPrice = tmpTargetPrice;
         setTokenProperty({ ...currentToken, targetPrice: tmpTargetPrice });
         monitorTokenPrice();
@@ -167,7 +168,7 @@ function SellToken(props) {
       if (tmpX !== 0) {
         console.log("No of X  Sell Stopped");
         clearInterval(monitorPriceTimerID);
-        setInputs({ ...inputs, noOfX: 0 });
+        //setInputs({ ...inputs, noOfX: 0 });
       }
 
       setSellTokenTxnStatus(TRANSACTION_STATUS.TRANSACTION_NOT_STARTED);
@@ -185,21 +186,14 @@ function SellToken(props) {
   ) {
     var result = false;
     const currentTokenPriceInUSD = await getTokenPrice(contract_id);
-    currentToken.currentPrice = currentTokenPriceInUSD;
-    //console.log("currentTokenPriceInUSD : ", currentTokenPriceInUSD);
-    var targetSellPrice = currentTokenPriceInUSD * parseInt(kNoOfX);
-    console.log(
-      "isTokenReachedExpectedTargetPrice: " +
-        currentTokenPriceInUSD +
-        " TargetPrice: " +
-        targetSellPrice +
-        " kTokenPriceBeforeMonitor: " +
-        kTokenPriceBeforeMonitor
-    );
+    currentToken.currentPrice = currentTokenPriceInUSD[1];
+    //console.log("currentTokenPriceInUSD : ", currentToken.currentPrice);
+    var targetSellPrice = currentToken.currentPrice * parseInt(kNoOfX);
+    console.log("isTokenReachedExpectedPrice: InitialPrice: " +currentToken.currentPrice +" TargetPrice: " +targetSellPrice +" TokenPriceBeforeMonitor: " +kTokenPriceBeforeMonitor);
     if (kTokenPriceBeforeMonitor >= targetSellPrice) {
       result = true;
     }
-    const tmpNoOfX = currentTokenPriceInUSD / kTokenPriceBeforeMonitor - 1;
+    const tmpNoOfX = currentToken.currentPrice / kTokenPriceBeforeMonitor - 1;
     setTokenProperty({ ...currentToken, noOfXReached: tmpNoOfX });
     return result;
   }
@@ -212,38 +206,25 @@ function SellToken(props) {
     if (bResult) {
       startSellToken();
       clearInterval(monitorPriceTimerID);
-      setInputs({ ...inputs, noOfX: 0 });
+      //setInputs({ ...inputs, noOfX: 0 });
     }
   }
 
   async function updateSlippageLossToken(sellTokenContractID) {
-    var amountIn = "";
+    var amountIn = '';
+    var amountOutMinInNo = ''; 
     try {
-      const inputTokenInWei = await web3.utils.toWei(
-        inputs.noOfTokensToSell,
-        "ether"
-      );
-      console.log(
-        "Nof of Tokens to Sell: " +
-          inputs.noOfTokensToSell +
-          " Slippage(%): " +
-          inputs.slippage
-      );
+      const inputTokenInWei = await web3.utils.toWei( inputs.noOfTokensToSell,"ether");
+      console.log("Nof of Tokens to Sell: " +inputs.noOfTokensToSell +" Slippage(%): " +inputs.slippage);
 
-      const amount_out = await sellTokenContractID.methods
-        .getAmountsOut(inputTokenInWei, [
-          contract_id,
-          BASE_TOKEN_CONTRACT_ADDRESS,
-        ])
-        .call();
+      const amount_out = await sellTokenContractID.methods.getAmountsOut(inputTokenInWei, [contract_id, BASE_TOKEN_CONTRACT_ADDRESS]).call();
       const newTokenInReserve = web3.utils.fromWei(amount_out[0]);
       const bnbTokenInReserve = web3.utils.fromWei(amount_out[1]);
-
       amountIn = amount_out[0];
       var slippageLoss = (amount_out[1] * inputs.slippage) / 100;
       slippageLoss = Math.round(slippageLoss);
 
-      var amountOutMinInNo = amount_out[1] - slippageLoss;
+      amountOutMinInNo = amount_out[1] - slippageLoss;
       //amountOutMinInNo = Math.round(amountOutMinInNo);
       //var BN1 = web3.utils.BN;
       //amountOutMinInNo = new BN1(amountOutMinInNo);
@@ -255,25 +236,19 @@ function SellToken(props) {
       //setSwaptoken({ ...swapToken, recvdToken: bnbTokenInReserve });
       //setSwaptoken({ ...swapToken, tokenLoss: slippageLossReadable });
 
-      swapToken.guarnteedToken = web3.utils.fromWei(amountAmountAfterSlippage);
-      swapToken.recvdToken = bnbTokenInReserve;
-      swapToken.tokenLoss = slippageLossReadable;
+      const currentTokenPriceInUSD = await getTokenPrice(contract_id);
+      const curBNBPrice = currentTokenPriceInUSD[0];
+      const curTokenPrice = currentTokenPriceInUSD[1];
+      const totalTokenPrice = curTokenPrice * inputs.noOfTokensToSell; 
 
-      console.log(
-        "Liquidity Reserve [NewToken][BNB]: " +
-          newTokenInReserve +
-          " NewToken[]: " +
-          bnbTokenInReserve
-      );
-      console.log(
-        " Might Loss of Tokens due to Slippage: " +
-          slippageLossReadable +
-          " Guaranteed in Wallet: " +
-          web3.utils.fromWei(amountAmountAfterSlippage) +
-          " TotalSwapBNB: " +
-          bnbTokenInReserve
-      );
-    } catch (error) {
+      swapToken.guarnteedToken = ((totalTokenPrice/curBNBPrice) - (((newTokenInReserve * inputs.slippage) / 100) * curTokenPrice / curBNBPrice ) )* inputs.noOfX;
+      swapToken.recvdToken = (totalTokenPrice/curBNBPrice) * inputs.noOfX;
+      swapToken.tokenLoss = swapToken.recvdToken - swapToken.guarnteedToken;
+
+      console.log("Liquidity Reserve [NewToken][BNB]: " + newTokenInReserve + " NewToken[]: " + bnbTokenInReserve);
+      console.log(" Might Loss of Tokens due to Slippage: " + slippageLossReadable +" Guaranteed in Wallet: " +web3.utils.fromWei(amountAmountAfterSlippage) +" TotalSwapBNB: " +bnbTokenInReserve);
+    } 
+    catch (error) {
       console.log("updateSlippageLossToken: Exception: " + error);
     }
 
@@ -285,16 +260,13 @@ function SellToken(props) {
       const pairAddress = [contract_id, BASE_TOKEN_CONTRACT_ADDRESS];
       const sellTokenContract = await getContractObject();
 
-      const senderAddress = await web3.eth.accounts.privateKeyToAccount(
-        WALLET_PRIVATE_KEY
-      ).address;
+      const senderAddress = await web3.eth.accounts.privateKeyToAccount(WALLET_PRIVATE_KEY).address;
       console.log("Sell Token Wallet Address: " + senderAddress);
 
       var swapAmount = [0, 0];
       swapAmount = await updateSlippageLossToken(sellTokenContract);
 
-      const data =
-        await sellTokenContract.methods.swapExactTokensForETHSupportingFeeOnTransferTokens(
+      const data =await sellTokenContract.methods.swapExactTokensForETHSupportingFeeOnTransferTokens(
           web3.utils.toHex(swapAmount[0]),
           web3.utils.toHex(swapAmount[1]),
           pairAddress,
@@ -322,12 +294,8 @@ function SellToken(props) {
         nonce: web3.utils.toHex(count),
       };
 
-      const signed_txn = await web3.eth.accounts.signTransaction(
-        rawTransaction,
-        WALLET_PRIVATE_KEY
-      );
-      await web3.eth
-        .sendSignedTransaction(signed_txn.rawTransaction)
+      const signed_txn = await web3.eth.accounts.signTransaction(rawTransaction, WALLET_PRIVATE_KEY);
+      await web3.eth.sendSignedTransaction(signed_txn.rawTransaction)
         .once("sending", function (payload) {
           console.log("txn sending: " + payload);
         })
@@ -335,12 +303,8 @@ function SellToken(props) {
           console.log("txn sent: " + payload);
         })
         .once("transactionHash", function (hash) {
-          console.log(
-            "txn transactionHash: " + BLOCKCHAIN_BLOCK_EXPLORER + hash
-          );
-          setTransactionHash({
-            confirmedHash: BLOCKCHAIN_BLOCK_EXPLORER + hash,
-          });
+          console.log( "txn transactionHash: " + BLOCKCHAIN_BLOCK_EXPLORER + hash);
+          setTransactionHash({confirmedHash: BLOCKCHAIN_BLOCK_EXPLORER + hash});
         })
         .once("receipt", function (receipt) {
           console.log("txn receipt: " + receipt);
@@ -366,7 +330,7 @@ function SellToken(props) {
           setVisible(visible, true);
         })
         .catch(function (error) {
-          console.log("exception");
+          console.log("exception: " + error);
           setSellTokenTxnStatus(
             TRANSACTION_STATUS.TRANACTIONO_COMPLETE_EXCEPTION
           );
@@ -490,11 +454,9 @@ function SellToken(props) {
                 </b>
                 {currentToken.currentPrice}
                 <br /> <br />
-                <b>Minimum Received: </b>
-                {swapToken.guarnteedToken} <b>Maximum Received: </b>
-                {swapToken.recvdToken}
+                <b>Guaranteed BNB Received: </b>{swapToken.guarnteedToken} <b>Maximum BNB Received: </b>{swapToken.recvdToken}
                 <br /> <br />
-                <b>Loss due to Slippage:</b>({inputs.slippage}%):
+                <b>BNB Loss due to Slippage:</b>({inputs.slippage}%):
                 {swapToken.tokenLoss}
                 <br /> <br />
                 <hr></hr>
