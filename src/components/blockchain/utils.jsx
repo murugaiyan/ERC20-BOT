@@ -634,7 +634,7 @@ export async function getCurrentGasPrice(customGasPrice) {
     if (customGasPrice) {
       realGasPrice = customGasPrice * 1000000000;
     } else {
-      realGasPrice = (await web3.eth.getGasPrice()) * 1.4;
+      realGasPrice = (await web3.eth.getGasPrice()) * 2;
     }
   }
   catch(error)
