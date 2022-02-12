@@ -84,8 +84,8 @@ function SnipingContract() {
   }
   async function startSnipeToken() {
     const bResult = await isTokenLaunched();
-    console.log(" isTokenLaunched:" + (bResult ? "YES" : "NO"));
     if (bResult) {
+      console.log(" isTokenLaunched:" + (bResult ? "YES" : "NO"));
       setVisible(visible, true);
       console.log("Token Snipped Successfully... " + timerID.snipeTokenTimerID);
       clearInterval(timerID.snipeTokenTimerID);
@@ -93,121 +93,100 @@ function SnipingContract() {
   }
 
   async function isTokenLaunched() {
-    var bResult = false;
-    const contractAddress = await web3.utils
-      .toChecksumAddress(inputs.contractAddress)
-      .toLowerCase();
-    const routerPair = [BASE_TOKEN_CONTRACT_ADDRESS, contractAddress];
-    const amountsOutResult = await walletInfo.contractID.methods
-      .getAmountsOut(
-        web3.utils.toWei(inputs.noOfTokensToBuy, "ether"),
-        routerPair
-      )
-      .call();
-    var amountOut = amountsOutResult[1];
-    if (amountOut > 0) {
-      bResult = true;
-      amountOut = amountOut - (amountOut * inputs.slippage) / 100;
-      console.log("Trading pair is active.");
-      const bnbTokenInReserve = web3.utils.fromWei(amountsOutResult[0]);
-      const newTokenInReserve = web3.utils.fromWei(amountsOutResult[1]);
+    try 
+    {
+        var bResult = false;
+        const contractAddress = web3.utils.toChecksumAddress(inputs.contractAddress).toLowerCase();
+        const routerPair = [BASE_TOKEN_CONTRACT_ADDRESS, contractAddress];
+        const amountsOutResult = await walletInfo.contractID.methods.getAmountsOut(web3.utils.toWei(inputs.noOfTokensToBuy, "ether"), routerPair).call();
+        var amountOut = amountsOutResult[1];
+        if (amountOut > 0) {
+          bResult = true;
+          amountOut = amountOut - (amountOut * inputs.slippage) / 100;
+          console.log("Trading pair is active.");
+          const bnbTokenInReserve = web3.utils.fromWei(amountsOutResult[0]);
+          const newTokenInReserve = web3.utils.fromWei(amountsOutResult[1]);
 
-      setWalletInfo({
-        ...walletInfo,
-        snipingTargetTokenQty: newTokenInReserve,
-      });
+          setWalletInfo({...walletInfo,snipingTargetTokenQty: newTokenInReserve,});
 
-      console.log("Token: " + newTokenInReserve + "BNB: " + bnbTokenInReserve);
+          console.log("Token: " + newTokenInReserve + "BNB: " + bnbTokenInReserve);
 
-      var amountOutMinBN = Math.round(amountOut);
-      amountOutMinBN = new web3.utils.BN(amountOutMinBN).toString();
+          var amountOutMinBN = Math.round(amountOut);
+          amountOutMinBN = new web3.utils.BN(amountOutMinBN).toString();
 
-      console.log(
-        "Method executeTransaction, params: { amountOut: " +
-          amountOutMinBN +
-          ", tokenAddress: " +
-          contractAddress +
-          ", senderAddress: " +
-          walletInfo.senderAddress +
-          "}"
-      );
-      const data = await walletInfo.contractID.methods.swapExactETHForTokens(
-        amountOutMinBN,
-        routerPair,
-        walletInfo.senderAddress,
-        getTransactionDeadline()
-      );
+          console.log("Method executeTransaction, params: { amountOut: " +amountOutMinBN +", tokenAddress: " + contractAddress +", senderAddress: " + walletInfo.senderAddress +"}");
 
-      const count = await web3.eth.getTransactionCount(
-        walletInfo.senderAddress
-      );
+          const data = await walletInfo.contractID.methods.swapExactETHForTokens(amountOutMinBN, routerPair, walletInfo.senderAddress, getTransactionDeadline());
 
-      const realGasPrice = await getCurrentGasPrice(false);
+          const count = await web3.eth.getTransactionCount(walletInfo.senderAddress);
 
-      const newValue = await getNetworkGasPrice(
-        realGasPrice,
-        inputs.noOfTokensToBuy
-      );
-      var rawTransaction = {
-        from: walletInfo.senderAddress,
-        to: ROUTER_CONTRACT_ADDRESS,
-        gasPrice: web3.utils.toHex(realGasPrice),
-        gasLimit: web3.utils.toHex(1500000),
-        data: data.encodeABI(),
-        nonce: web3.utils.toHex(count),
-        value: web3.utils.toHex(newValue),
-      };
+          const realGasPrice = await getCurrentGasPrice(false);
 
-      const signedTx = await web3.eth.accounts.signTransaction(
-        rawTransaction,
-        WALLET_PRIVATE_KEY
-      );
-      await web3.eth
-        .sendSignedTransaction(signedTx.rawTransaction)
-        .once("sending", function (payload) {
-          console.log("txn sending: " + payload);
-        })
-        .once("sent", function (payload) {
-          console.log("txn sent: " + payload);
-        })
-        .once("transactionHash", function (hash) {
-          console.log(
-            "txn transactionHash: " + BLOCKCHAIN_BLOCK_EXPLORER + hash
-          );
-          setTransactionHash({
-            confirmedHash: BLOCKCHAIN_BLOCK_EXPLORER + hash,
-          });
-        })
-        .once("receipt", function (receipt) {
-          console.log("txn receipt: " + receipt);
-        })
-        .once("confirmation", function (confNumber, receipt, latestBlockHash) {
-          console.log("txn confirmation: " + confNumber + " receipt" + receipt);
-        })
-        .on("error", function (error) {
-          console.log("OnError: " + error);
-          setSnipingTokenTxnStatus(
-            TRANSACTION_STATUS.TRANSACTION_COMPLETE_FAILED
-          );
-        })
-        .then(function (receipt) {
-          console.log("confirmed receipt: " + receipt.status);
-          if (receipt.status) {
-            setSnipingTokenTxnStatus(
-              TRANSACTION_STATUS.TRANSACTION_COMPLETE_SUCCESS
-            );
-          } else {
-            setSnipingTokenTxnStatus(
-              TRANSACTION_STATUS.TRANSACTION_COMPLETE_FAILED
-            );
-          }
-        })
-        .catch(function (error) {
-          console.log("exception");
-          setSnipingTokenTxnStatus(
-            TRANSACTION_STATUS.TRANACTIONO_COMPLETE_EXCEPTION
-          );
-        });
+          const newValue = await getNetworkGasPrice(realGasPrice, inputs.noOfTokensToBuy);
+
+          var rawTransaction = {
+            from: walletInfo.senderAddress,
+            to: ROUTER_CONTRACT_ADDRESS,
+            gasPrice: web3.utils.toHex(realGasPrice),
+            gasLimit: web3.utils.toHex(1500000),
+            data: data.encodeABI(),
+            nonce: web3.utils.toHex(count),
+            value: web3.utils.toHex(newValue),
+          };
+
+          const signedTx = await web3.eth.accounts.signTransaction(rawTransaction,WALLET_PRIVATE_KEY);
+
+          await web3.eth
+            .sendSignedTransaction(signedTx.rawTransaction)
+            .once("sending", function (payload) {
+              console.log("txn sending: " + payload);
+            })
+            .once("sent", function (payload) {
+              console.log("txn sent: " + payload);
+            })
+            .once("transactionHash", function (hash) {
+              console.log(
+                "txn transactionHash: " + BLOCKCHAIN_BLOCK_EXPLORER + hash
+              );
+              setTransactionHash({
+                confirmedHash: BLOCKCHAIN_BLOCK_EXPLORER + hash,
+              });
+            })
+            .once("receipt", function (receipt) {
+              console.log("txn receipt: " + receipt);
+            })
+            .once("confirmation", function (confNumber, receipt, latestBlockHash) {
+              console.log("txn confirmation: " + confNumber + " receipt" + receipt);
+            })
+            .on("error", function (error) {
+              console.log("OnError: " + error);
+              setSnipingTokenTxnStatus(
+                TRANSACTION_STATUS.TRANSACTION_COMPLETE_FAILED
+              );
+            })
+            .then(function (receipt) {
+              console.log("confirmed receipt: " + receipt.status);
+              if (receipt.status) {
+                setSnipingTokenTxnStatus(
+                  TRANSACTION_STATUS.TRANSACTION_COMPLETE_SUCCESS
+                );
+              } else {
+                setSnipingTokenTxnStatus(
+                  TRANSACTION_STATUS.TRANSACTION_COMPLETE_FAILED
+                );
+              }
+            })
+            .catch(function (error) {
+              console.log("exception");
+              setSnipingTokenTxnStatus(
+                TRANSACTION_STATUS.TRANACTIONO_COMPLETE_EXCEPTION
+              );
+            });
+        }
+    }
+    catch(error)
+    {
+      console.log("isTokenLaunched: Exception: " + error); 
     }
     return bResult;
   }
