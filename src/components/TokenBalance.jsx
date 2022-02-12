@@ -4,21 +4,20 @@ import {getTokenBalanceHumanReadable} from './blockchain/utils';
 function TokenBalance(props)
 {
     const [balance, setBalance] = useState(''); 
-    try {
         getSymbols(); 
         async function getSymbols()
         {
-            //console.log("utils: TokenBalance Address: " + props.tokenAddress); 
-            const tokenBalance = await getTokenBalanceHumanReadable(props.tokenAddress);
-            setBalance(tokenBalance);
-            props.funcTokenBalance(tokenBalance); 
+            try {
+                //console.log("utils: TokenBalance Address: " + props.tokenAddress); 
+                const tokenBalance = await getTokenBalanceHumanReadable(props.tokenAddress);
+                setBalance(tokenBalance);
+                props.funcTokenBalance(tokenBalance); 
+            }
+            catch(error)
+            {
+                console.log("TokenBalance: Exception: " + error); 
+            }
         }
-    }
-    catch(error)
-    {
-        console.log("TokenBalance: Exception: " + error); 
-    }
-    
 
     return(
         <>
