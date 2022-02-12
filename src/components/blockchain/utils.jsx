@@ -471,94 +471,102 @@ var txnStatus = {
   transferStatus: TRANSACTION_STATUS.TRANSACTION_NOT_STARTED,
 };
 export async function getTokenSymbol(tokenAddres) {
-  const tokenRouter = await new web3.eth.Contract(tokenAbi, tokenAddres);
-  const symbol = await tokenRouter.methods.symbol().call();
+  var symbol = ''; 
+  try {
+    const tokenRouter = new web3.eth.Contract(tokenAbi, tokenAddres);
+    symbol = await tokenRouter.methods.symbol().call();
 
-  //console.log ("utils: TokenSymbol: " + symbol);
+    //console.log ("utils: TokenSymbol: " + symbol);
+  }
+  catch(error)
+  {
+    console.log("utils getTokenSymbol Exception: " + error); 
+  }
   return symbol;
 }
 
 export async function getTokenDecimal(tokenAddres) {
-  const tokenRouter = await new web3.eth.Contract(
-    tokenAbi,
-    tokenAddres.toLowerCase()
-  );
-  const tokenDecimals = await tokenRouter.methods.decimals().call();
-
+  var tokenDecimals = ''; 
+  try {
+  const tokenRouter = new web3.eth.Contract(tokenAbi, tokenAddres.toLowerCase());
+  tokenDecimals = await tokenRouter.methods.decimals().call();
   //console.log ("utils: tokenDecimals:" + tokenDecimals);
+  }
+  catch(error)
+  {
+    console.log("utils getTokenDecimal Exception: " + error); 
+  }
   return tokenDecimals;
 }
 
 export async function getNetworkGasPrice(realGasPrice, noOfQtyToSendInBNB) {
-  const bnbAmount = await web3.utils.toWei(noOfQtyToSendInBNB, "ether");
-  var bnbAmountInBN = web3.utils.toBN(bnbAmount);
+  var gasPrice = 0; 
+  try {
+    const bnbAmount = web3.utils.toWei(noOfQtyToSendInBNB, "ether");
+    var bnbAmountInBN = web3.utils.toBN(bnbAmount);
+    const extraAmount = await web3.utils.toWei("0.01", "ether");
+    const extraAmountInBN = web3.utils.toBN(extraAmount);
+    const curGas = web3.utils.toBN(Math.round(realGasPrice));
 
-  const extraAmount = await web3.utils.toWei("0.01", "ether");
-  const extraAmountInBN = web3.utils.toBN(extraAmount);
-
-  const curGas = web3.utils.toBN(Math.round(realGasPrice));
-
-  var tmp1 = bnbAmountInBN.add(curGas);
-  const gasPrice = tmp1.add(extraAmountInBN);
-
+    var tmp1 = bnbAmountInBN.add(curGas);
+    gasPrice = tmp1.add(extraAmountInBN);
+  }
+  catch(error)
+  {
+    console.log("utils getNetworkGasPrice Exception: " + error); 
+  }
   return gasPrice;
 }
 
 export async function getTokenBalanceHumanReadable(tokenContractAddress) {
   var tokenBalanceReadable = ''; 
-  const senderAddress = await web3.eth.accounts.privateKeyToAccount(
-    WALLET_PRIVATE_KEY
-  ).address;
-  const tokenRouter = new web3.eth.Contract(
-    tokenAbi,
-    tokenContractAddress.toLowerCase()
-  );
-  const tokenBalance = await tokenRouter.methods
-    .balanceOf(senderAddress)
-    .call();
+  try {
+    const senderAddress = web3.eth.accounts.privateKeyToAccount(WALLET_PRIVATE_KEY).address;
+    const tokenRouter = new web3.eth.Contract(tokenAbi,tokenContractAddress.toLowerCase());
+    const tokenBalance = await tokenRouter.methods.balanceOf(senderAddress).call();
 
-    const tokenDecimals = await tokenRouter.methods
-    .decimals()
-    .call();
-  if(tokenDecimals === "9")
-  {
-      tokenBalanceReadable = web3.utils.fromWei(tokenBalance, "gwei");
+    const tokenDecimals = await tokenRouter.methods.decimals().call();
+    if(tokenDecimals === "9")
+    {
+        tokenBalanceReadable = web3.utils.fromWei(tokenBalance, "gwei");
+    }
+    else
+    {
+        tokenBalanceReadable = web3.utils.fromWei(tokenBalance, "ether");
+    }  
+    //console.log ("utils: getTokenBalanceHumanReadable:" + tokenBalanceReadable);
   }
-  else
+  catch(error)
   {
-      tokenBalanceReadable = web3.utils.fromWei(tokenBalance, "ether");
+    console.log("utils getTokenBalanceHumanReadable Exception: " + error); 
   }
-  
-  //console.log ("utils: getTokenBalanceHumanReadable:" + tokenBalanceReadable);
   return tokenBalanceReadable;
 }
 
 export async function getTokenBalanceInWei(tokenContractAddress) {
-   var tokenBalance = ''; 
-  const senderAddress = await web3.eth.accounts.privateKeyToAccount(
-    WALLET_PRIVATE_KEY
-  ).address;
-  const tokenRouter = new web3.eth.Contract(
-    tokenAbi,
-    tokenContractAddress.toLowerCase()
-  );
-  tokenBalance = await tokenRouter.methods
-    .balanceOf(senderAddress)
-    .call();
+  var tokenBalance = ''; 
+   try {
+    const senderAddress = await web3.eth.accounts.privateKeyToAccount(WALLET_PRIVATE_KEY).address;
+    const tokenRouter = new web3.eth.Contract(tokenAbi,tokenContractAddress.toLowerCase());
 
-    const tokenDecimals = await tokenRouter.methods
-    .decimals()
-    .call();
+    tokenBalance = await tokenRouter.methods.balanceOf(senderAddress).call();
 
-  if(tokenDecimals === "9")
-  {
-      tokenBalance = web3.utils.fromWei(tokenBalance, "gwei");
+    const tokenDecimals = await tokenRouter.methods.decimals().call();
+
+    if(tokenDecimals === "9")
+    {
+        tokenBalance = web3.utils.fromWei(tokenBalance, "gwei");
+    }
+    else
+    {
+        tokenBalance = web3.utils.fromWei(tokenBalance, "ether");
+    }
+    //console.log ("utils: getTokenBalanceInWei:" + tokenBalance);
   }
-  else
+  catch(error)
   {
-      tokenBalance = web3.utils.fromWei(tokenBalance, "ether");
+    console.log("utils getTokenBalanceInWei Exception: " + error); 
   }
-  //console.log ("utils: getTokenBalanceInWei:" + tokenBalance);
   return tokenBalance;
 }
 
@@ -603,7 +611,7 @@ export async function getContractObject() {
     BLOCKCHAIN_CHAIN_ID_NETWORK.ETH_MAINNET === BLOCKCHAIN_CHAIN_ID ||
     BLOCKCHAIN_CHAIN_ID_NETWORK.ETH_GOERILI === BLOCKCHAIN_CHAIN_ID
   ) {
-    contractObject = await new web3.eth.Contract(
+    contractObject = new web3.eth.Contract(
       UNISWAP_CONTRACT_ABI,
       ROUTER_CONTRACT_ADDRESS
     );
@@ -611,7 +619,7 @@ export async function getContractObject() {
     BLOCKCHAIN_CHAIN_ID_NETWORK.BSC_MAINNET === BLOCKCHAIN_CHAIN_ID ||
     BLOCKCHAIN_CHAIN_ID_NETWORK.BSC_TESTNET === BLOCKCHAIN_CHAIN_ID
   ) {
-    contractObject = await new web3.eth.Contract(
+    contractObject = new web3.eth.Contract(
       PANCAKE_CONTRACT_ABI,
       ROUTER_CONTRACT_ADDRESS
     );
@@ -622,45 +630,54 @@ export async function getContractObject() {
 
 export async function getCurrentGasPrice(customGasPrice) {
   var realGasPrice = 0;
-  if (customGasPrice) {
-    realGasPrice = customGasPrice * 1000000000;
-  } else {
-    realGasPrice = (await web3.eth.getGasPrice()) * 1.4;
+  try {
+    if (customGasPrice) {
+      realGasPrice = customGasPrice * 1000000000;
+    } else {
+      realGasPrice = (await web3.eth.getGasPrice()) * 1.4;
+    }
+  }
+  catch(error)
+  {
+    console.log("utils getCurrentGasPrice Exception: " + error); 
   }
   return Math.round(realGasPrice);
 }
 
 export async function getSwapPair(address1, tokenContractAddress) {
-  var tokenRouter = "";
-  if (
-    BLOCKCHAIN_CHAIN_ID_NETWORK.ETH_MAINNET === BLOCKCHAIN_CHAIN_ID ||
-    BLOCKCHAIN_CHAIN_ID_NETWORK.ETH_GOERILI === BLOCKCHAIN_CHAIN_ID
-  ) {
-    tokenRouter = new web3.eth.Contract(
-      routerFactoryABI,
-      "0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f".toLowerCase()
-    );
-  } else if (BLOCKCHAIN_CHAIN_ID_NETWORK.BSC_MAINNET === BLOCKCHAIN_CHAIN_ID) {
-    tokenRouter = new web3.eth.Contract(
-      routerFactoryABI,
-      "0xcA143Ce32Fe78f1f7019d7d551a6402fC5350c73".toLowerCase()
-    );
-  } else if (BLOCKCHAIN_CHAIN_ID_NETWORK.BSC_TESTNET === BLOCKCHAIN_CHAIN_ID) {
-    tokenRouter = new web3.eth.Contract(
-      routerFactoryABI,
-      "0x6725F303b657a9451d8BA641348b6761A6CC7a17".toLowerCase()
-    );
-  }
+  var tokenRouter = '';
+  var pairAddress = ''; 
+  try {
+    if (
+      BLOCKCHAIN_CHAIN_ID_NETWORK.ETH_MAINNET === BLOCKCHAIN_CHAIN_ID ||
+      BLOCKCHAIN_CHAIN_ID_NETWORK.ETH_GOERILI === BLOCKCHAIN_CHAIN_ID
+    ) {
+      tokenRouter = new web3.eth.Contract(
+        routerFactoryABI,
+        "0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f".toLowerCase()
+      );
+    } else if (BLOCKCHAIN_CHAIN_ID_NETWORK.BSC_MAINNET === BLOCKCHAIN_CHAIN_ID) {
+      tokenRouter = new web3.eth.Contract(
+        routerFactoryABI,
+        "0xcA143Ce32Fe78f1f7019d7d551a6402fC5350c73".toLowerCase()
+      );
+    } else if (BLOCKCHAIN_CHAIN_ID_NETWORK.BSC_TESTNET === BLOCKCHAIN_CHAIN_ID) {
+      tokenRouter = new web3.eth.Contract(
+        routerFactoryABI,
+        "0x6725F303b657a9451d8BA641348b6761A6CC7a17".toLowerCase()
+      );
+    }
 
-  const pairAddress = await tokenRouter.methods
-    .getPair(address1, tokenContractAddress)
-    .call();
+    pairAddress = await tokenRouter.methods.getPair(address1, tokenContractAddress).call();
+  }
+  catch(error)
+  {
+    console.log("utils getSwapPair Exception: " + error); 
+  }
   return pairAddress;
 }
 
 export function getTransactionDeadline() {
-  const deadline = web3.utils.toHex(
-    Math.round(Date.now() / 1000) + 60 * TRANSACTION_DEADLINE
-  );
+  const deadline = web3.utils.toHex(Math.round(Date.now() / 1000) + 60 * TRANSACTION_DEADLINE);
   return deadline;
 }
