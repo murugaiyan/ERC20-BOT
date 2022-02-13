@@ -37,7 +37,7 @@ export default function DarkMode() {
             {icon}
           </IconButton>
         </div>
-        <h2 align="center">MURU BOT</h2>
+        <h2 align="center">ERC20 BOT</h2>
         <Time />
         <WalletInfoDashboard />
         <Navigation />
