@@ -29,9 +29,7 @@ async function calcSell(tokensToSell, tokenAddres) {
     let amountOut;
     try {
         const router = await getContractObject();
-        amountOut = await router.methods
-            .getAmountsOut(tokensToSell, [tokenAddres, BASE_TOKEN_CONTRACT_ADDRESS])
-            .call();
+        amountOut = await router.methods.getAmountsOut(tokensToSell, [tokenAddres, BASE_TOKEN_CONTRACT_ADDRESS]).call();
         amountOut = web3.utils.fromWei(amountOut[1]);
     } catch (error) {
         console.log("tokenPrice: calcSell - Exception: " + error);

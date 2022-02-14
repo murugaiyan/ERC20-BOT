@@ -524,16 +524,9 @@ export async function getTokenBalanceHumanReadable(tokenContractAddress) {
     const senderAddress = web3.eth.accounts.privateKeyToAccount(WALLET_PRIVATE_KEY).address;
     const tokenRouter = new web3.eth.Contract(tokenAbi,tokenContractAddress.toLowerCase());
     const tokenBalance = await tokenRouter.methods.balanceOf(senderAddress).call();
-
     const tokenDecimals = await tokenRouter.methods.decimals().call();
-    if(tokenDecimals === "9")
-    {
-        tokenBalanceReadable = web3.utils.fromWei(tokenBalance, "gwei");
-    }
-    else
-    {
-        tokenBalanceReadable = web3.utils.fromWei(tokenBalance, "ether");
-    }  
+    
+    tokenBalanceReadable = tokenBalance/(Math.pow(10, tokenDecimals)); 
     //console.log ("utils: getTokenBalanceHumanReadable:" + tokenBalanceReadable);
   }
   catch(error)
