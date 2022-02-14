@@ -104,14 +104,9 @@ function SellToken(props) {
       const tmpX = parseInt(inputs.noOfX);
       setInputs({ ...inputs, noOfX: tmpX });
       currentToken.initialPrice = tokenInitPrice;
-      contract_id = await web3.utils
-        .toChecksumAddress(inputs.contractAddress)
-        .toLowerCase();
+      contract_id = await web3.utils.toChecksumAddress(inputs.contractAddress).toLowerCase();
 
-      const pairValid = await getSwapPair(
-        BASE_TOKEN_CONTRACT_ADDRESS,
-        contract_id
-      );
+      
 
       if (0 >= tokenInitPrice) {
         console.log("Price Calculation is wrong: " + tokenInitPrice);
@@ -122,6 +117,7 @@ function SellToken(props) {
         return;
       }
 
+      const pairValid = await getSwapPair(BASE_TOKEN_CONTRACT_ADDRESS, contract_id);
       if (web3.utils.toBN(pairValid).isZero()) {
         console.log("Pair Invalid: " + pairValid);
         setSellTokenTxnStatus(
@@ -180,10 +176,7 @@ function SellToken(props) {
     setInputs({ ...inputs, delayedSell: 0 });
   }
 
-  async function isTokenReachedExpectedTargetPrice(
-    kNoOfX,
-    kTokenPriceBeforeMonitor
-  ) {
+  async function isTokenReachedExpectedTargetPrice(kNoOfX, kTokenPriceBeforeMonitor) {
     var result = false;
     const currentTokenPriceInUSD = await getTokenPrice(contract_id);
     currentToken.currentPrice = currentTokenPriceInUSD[1];
@@ -214,7 +207,7 @@ function SellToken(props) {
     var amountIn = '';
     var amountOutMinInNo = ''; 
     try {
-      const inputTokenInWei = await web3.utils.toWei( inputs.noOfTokensToSell,"ether");
+      const inputTokenInWei = await web3.utils.toWei( inputs.noOfTokensToSell.toString(),"ether");
       console.log("Nof of Tokens to Sell: " +inputs.noOfTokensToSell +" Slippage(%): " +inputs.slippage);
 
       const amount_out = await sellTokenContractID.methods.getAmountsOut(inputTokenInWei, [contract_id, BASE_TOKEN_CONTRACT_ADDRESS]).call();
