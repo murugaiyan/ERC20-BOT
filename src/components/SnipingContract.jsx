@@ -233,7 +233,7 @@ function SnipingContract() {
                 title={visible ? "Start Snipe" : "Stop Snipe"}
               />
             )}
-          <hr />
+          
           {transactionStatus.status !==
             TRANSACTION_STATUS.TRANSACTION_NOT_STARTED && (
             <label>
