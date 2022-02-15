@@ -3,7 +3,6 @@ import {getTokenSymbol} from './blockchain/utils';
 
 function TokenSymbol(props)
 {
-   
         const [symbol, setSymbol] = useState(''); 
         getSymbols(); 
         async function getSymbols()

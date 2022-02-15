@@ -11,6 +11,7 @@ import { useState } from 'react';
 import { WALLET_PRIVATE_KEY, ROUTER_CONTRACT_ADDRESS, BLOCKCHAIN_NODE_PROVIDER, BLOCKCHAIN_BLOCK_EXPLORER, TRANSACTION_STATUS } from './constants'
 import { utilsSetApproveTokenTxnStatus, getCurrentGasPrice } from './blockchain/utils'
 import Typography from '@mui/material/Typography';
+import CurrentTokenPrice from "./CurrentTokenPrice";
 
 function Approve() {
 
@@ -98,6 +99,7 @@ function Approve() {
                             {(inputs.contractAddress.length >= 42) && <TokenSymbol tokenAddress={inputs.contractAddress} />}
                             )::
                             {(inputs.contractAddress.length >= 42) && <TokenBalance tokenAddress={inputs.contractAddress} funcTokenBalance={setTokenBalance} />}
+                             <CurrentTokenPrice tokenAddress={inputs.contractAddress}/>
                         </label>
                     }
                     <br />

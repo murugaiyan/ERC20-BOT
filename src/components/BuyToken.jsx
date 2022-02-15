@@ -21,7 +21,7 @@ import TokenBalance from "./TokenBalance";
 import TransactionStatus from "./TransactionStatus";
 import ContractTextField from "./ContractTextField";
 import Typography from "@mui/material/Typography";
-
+import CurrentTokenPrice from "./CurrentTokenPrice";
 function BuyToken() {
   const [inputs, setInputs] = useState({
     contractAddress: "",
@@ -216,7 +216,7 @@ function BuyToken() {
                 tokenAddress={inputs.contractAddress}
                 funcTokenBalance={setTokenBalance}
               />
-              <br />
+              <CurrentTokenPrice tokenAddress={inputs.contractAddress}/>
               <br />
               <ContractTextField
                 onChange={handleChange}

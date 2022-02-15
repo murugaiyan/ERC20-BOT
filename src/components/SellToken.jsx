@@ -27,6 +27,8 @@ import {
   getSwapPair,
   getTransactionDeadline,
 } from "./blockchain/utils";
+import CurrentTokenPrice from "./CurrentTokenPrice";
+
 
 function SellToken(props) {
   const [inputs, setInputs] = useState({
@@ -50,7 +52,6 @@ function SellToken(props) {
     maxAvailable: 0,
     targetPrice: 0,
     noOfXReached: 0,
-    currentPrice: 0,
   });
   const [swapToken] = useState({
     tokenLoss: "",
@@ -66,6 +67,7 @@ function SellToken(props) {
   });
 
   const [tokenBalance, setTokenBalance] = useState(0);
+  const [tokenCurrentPrice, setTokenCurrentPrice] = useState(0);
   const [visible, setVisible] = useState(true);
   var contract_id = "";
 
@@ -79,9 +81,7 @@ function SellToken(props) {
 
   async function handleGetBalance(event) {
     event.preventDefault();
-    const tokenBalance = await getTokenBalanceHumanReadable(
-      inputs.contractAddress
-    );
+    const tokenBalance = await getTokenBalanceHumanReadable(inputs.contractAddress);
     inputs.noOfTokensToSell = tokenBalance;
     setTokenProperty({ ...currentToken, maxAvailable: tokenBalance });
     setInputs({ ...inputs, noOfTokensToSell: tokenBalance });
@@ -98,15 +98,14 @@ function SellToken(props) {
     if (visible) {
       setTransactionHash({ confirmedHash: "" });
       setSellTokenTxnStatus(TRANSACTION_STATUS.TRANSACTION_IN_PROGRESS);
-      const tmpInitialPrice  = await getTokenPrice(inputs.contractAddress);
+      contract_id = await web3.utils.toChecksumAddress(inputs.contractAddress).toLowerCase();
+      const tmpInitialPrice  = await getTokenPrice(contract_id);
+      setTokenCurrentPrice(tmpInitialPrice[1]); 
       const tokenInitPrice = tmpInitialPrice[1]; 
       setTokenProperty({ ...currentToken, initialPrice: tokenInitPrice });
       const tmpX = parseInt(inputs.noOfX);
       setInputs({ ...inputs, noOfX: tmpX });
       currentToken.initialPrice = tokenInitPrice;
-      contract_id = await web3.utils.toChecksumAddress(inputs.contractAddress).toLowerCase();
-
-      
 
       if (0 >= tokenInitPrice) {
         console.log("Price Calculation is wrong: " + tokenInitPrice);
@@ -179,14 +178,15 @@ function SellToken(props) {
   async function isTokenReachedExpectedTargetPrice(kNoOfX, kTokenPriceBeforeMonitor) {
     var result = false;
     const currentTokenPriceInUSD = await getTokenPrice(contract_id);
-    currentToken.currentPrice = currentTokenPriceInUSD[1];
-    //console.log("currentTokenPriceInUSD : ", currentToken.currentPrice);
-    var targetSellPrice = currentToken.currentPrice * parseInt(kNoOfX);
-    console.log("isTokenReachedExpectedPrice: InitialPrice: " +currentToken.currentPrice +" TargetPrice: " +targetSellPrice +" TokenPriceBeforeMonitor: " +kTokenPriceBeforeMonitor);
+    const tmpTokenCurrentPrice = currentTokenPriceInUSD[1];
+    setTokenCurrentPrice(tmpTokenCurrentPrice); 
+    //console.log("currentTokenPriceInUSD : ", tokenCurrentPrice);
+    var targetSellPrice = tmpTokenCurrentPrice * parseInt(kNoOfX);
+    console.log("isTokenReachedExpectedPrice: CurrentPrice: " +tmpTokenCurrentPrice +" TargetPrice: " +targetSellPrice + " TokenPriceBeforeMonitor: " +kTokenPriceBeforeMonitor);
     if (kTokenPriceBeforeMonitor >= targetSellPrice) {
       result = true;
     }
-    const tmpNoOfX = currentToken.currentPrice / kTokenPriceBeforeMonitor - 1;
+    const tmpNoOfX = tmpTokenCurrentPrice / kTokenPriceBeforeMonitor - 1;
     setTokenProperty({ ...currentToken, noOfXReached: tmpNoOfX });
     return result;
   }
@@ -354,20 +354,19 @@ function SellToken(props) {
           <br></br>
           {inputs.contractAddress.length === 42 && (
             <label>
-              {" "}
               MaxAvailableToken (
               <TokenSymbol tokenAddress={inputs.contractAddress} />
               )::
               <TokenBalance
                 tokenAddress={inputs.contractAddress}
                 funcTokenBalance={setTokenBalance}
-              />
+                 />
+                 <CurrentTokenPrice tokenAddress={inputs.contractAddress} />
             </label>
           )}
 
           {inputs.contractAddress.length === 42 && tokenBalance !== 0 && (
             <label>
-              <br />
               <br />
               <ContractTextField
                 onChange={handleChange}
@@ -441,11 +440,10 @@ function SellToken(props) {
                 <b> Target Price:</b>
                 {currentToken.targetPrice}
                 <b>
-                  {" "}
                   Current (
                   <TokenSymbol tokenAddress={inputs.contractAddress} />) Price:
                 </b>
-                {currentToken.currentPrice}
+                {tokenCurrentPrice}
                 <br /> <br />
                 <b>Guaranteed BNB Received: </b>{swapToken.guarnteedToken} <b>Maximum BNB Received: </b>{swapToken.recvdToken}
                 <br /> <br />

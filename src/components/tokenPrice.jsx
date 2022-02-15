@@ -69,7 +69,7 @@ export async function getTokenPrice(kTokenContractAddress) {
     //console.log("Monitor token Contract address: ", kTokenContractAddress);
     let bnbPrice = await calcBNBPrice(BUSD_CONTRACT_ADDRESS);
     let tokens_to_sell = 1;
-    let priceInBnb = (await calcSell(tokens_to_sell, kTokenContractAddress)) / tokens_to_sell;
+    let priceInBnb = (await calcSell(tokens_to_sell, kTokenContractAddress.toLowerCase())) / tokens_to_sell;
     const priceInUSD = (priceInBnb * bnbPrice).toFixed(18);
     // console.log( 'SHIT_TOKEN VALUE IN BNB : ' + priceInBnb + ' | Just convert it to USD ' );
     //console.log(` VALUE IN USD: ${priceInUSD}`); // convert the token price from BNB to USD based on the retrived BNB value
