@@ -9,7 +9,7 @@ import TransactionStatus from './TransactionStatus';
 import ContractTextField from './ContractTextField';
 import { useState } from 'react';
 import { WALLET_PRIVATE_KEY, ROUTER_CONTRACT_ADDRESS, BLOCKCHAIN_NODE_PROVIDER, BLOCKCHAIN_BLOCK_EXPLORER, TRANSACTION_STATUS } from './constants'
-import { utilsSetApproveTokenTxnStatus } from './blockchain/utils'
+import { utilsSetApproveTokenTxnStatus, getCurrentGasPrice } from './blockchain/utils'
 import Typography from '@mui/material/Typography';
 
 function Approve() {
@@ -63,9 +63,7 @@ function Approve() {
             const sellTokenContract = new ethers.Contract(contract_id, ERC20ABI, signer);
 
             const TOKENS = await web3.utils.toHex('115792089237316195423570985008687907853269984665640564039457584007913129639935');
-            const gasPrice = await web3.eth.getGasPrice();
-            console.log("Current Gas Price: ", gasPrice);
-            const newGasPrice = Math.floor(gasPrice * 2);
+            const newGasPrice =  await getCurrentGasPrice(false);;
             const data = await sellTokenContract.approve(ROUTER_CONTRACT_ADDRESS, TOKENS,
                 {
                     gasPrice: ethers.BigNumber.from(newGasPrice).toHexString(),

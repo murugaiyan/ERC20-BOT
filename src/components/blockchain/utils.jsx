@@ -7,6 +7,7 @@ import {
   BLOCKCHAIN_CHAIN_ID_NETWORK,
   BLOCKCHAIN_CHAIN_ID,
   TRANSACTION_DEADLINE,
+  BLOCKCHAIN_GAS_PRICE_MULTIPLIER
 } from "../constants";
 import web3 from "./web3";
 
@@ -624,17 +625,27 @@ export async function getContractObject() {
 export async function getCurrentGasPrice(customGasPrice) {
   var realGasPrice = 0;
   try {
-    if (customGasPrice) {
-      realGasPrice = customGasPrice * 1000000000;
-    } else {
-      realGasPrice = (await web3.eth.getGasPrice()) * 2;
-    }
+      if (customGasPrice) {
+        realGasPrice = customGasPrice * 1000000000;
+      } else {
+        var gasPriceMultiplier = BLOCKCHAIN_GAS_PRICE_MULTIPLIER; 
+        if(gasPriceMultiplier === 0)
+        {
+          gasPriceMultiplier = 1; 
+        }
+        realGasPrice = await web3.eth.getGasPrice() ;
+        console.log("current gas Price: " + realGasPrice + " Gas Multiplier: " + gasPriceMultiplier); 
+        
+        realGasPrice*= gasPriceMultiplier;
+      }
   }
   catch(error)
   {
     console.log("utils getCurrentGasPrice Exception: " + error); 
   }
-  return Math.round(realGasPrice);
+  
+  realGasPrice = Math.round(realGasPrice);
+  return realGasPrice;
 }
 
 export async function getSwapPair(address1, tokenContractAddress) {
