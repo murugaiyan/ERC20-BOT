@@ -71,7 +71,7 @@ function SnipingContract() {
       walletInfo.contractID = await getContractObject();
       const intervalID = setInterval(
         startSnipeToken,
-        POLLING_BLOCKCHAIN_INTERVAL.INTERVAL_SELL_CONTRACT
+        POLLING_BLOCKCHAIN_INTERVAL.INTERVAL_SNIPING_CONTRACT
       );
       timerID.snipeTokenTimerID = intervalID;
       setTimerID(timerID, intervalID);
