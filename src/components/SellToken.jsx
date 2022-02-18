@@ -30,7 +30,8 @@ import {
 import CurrentTokenPrice from "./CurrentTokenPrice";
 
 
-function SellToken(props) {
+function SellToken() 
+{
   const [inputs, setInputs] = useState({
     contractAddress: "",
     noOfTokensToSell: 0,
@@ -39,8 +40,7 @@ function SellToken(props) {
     delayedSell: 0,
     checked: false,
   });
-  const [monitorPriceTimerID, setMonitorPriceTimerID] = useState(0);
-  const [delayedSellTimerID, setDelayedSellTimerID] = useState(0);
+ 
 
   const [currentToken, setTokenProperty] = useState({
     initialPrice: 0,
@@ -59,123 +59,132 @@ function SellToken(props) {
     recvdToken: "",
   });
 
-  const [transactionHash, setTransactionHash] = useState({
-    confirmedHash: "",
-  });
-  const [transactionStatus, setTransactionStatus] = useState({
-    status: TRANSACTION_STATUS.TRANSACTION_NOT_STARTED,
-  });
-
+  const [monitorPriceTimerID, setMonitorPriceTimerID] = useState(0);
+  const [delayedSellTimerID, setDelayedSellTimerID] = useState(0);
+  const [transactionHash, setTransactionHash] = useState({confirmedHash: "",});
+  const [transactionStatus, setTransactionStatus] = useState({status: TRANSACTION_STATUS.TRANSACTION_NOT_STARTED,});
   const [tokenBalance, setTokenBalance] = useState(0);
   const [tokenCurrentPrice, setTokenCurrentPrice] = useState(0);
   const [visible, setVisible] = useState(true);
   var contract_id = "";
 
-  const handleChange = (event) => {
+  const handleChange = (event) => 
+  {
     const value = event.target.value;
-    setInputs({
-      ...inputs,
-      [event.target.name]: value,
-    });
+    setInputs({...inputs,[event.target.name]: value});
   };
 
-  async function handleGetBalance(event) {
+async function handleGetBalance(event) 
+{
     event.preventDefault();
     const tokenBalance = await getTokenBalanceHumanReadable(inputs.contractAddress);
     inputs.noOfTokensToSell = tokenBalance;
     setTokenProperty({ ...currentToken, maxAvailable: tokenBalance });
     setInputs({ ...inputs, noOfTokensToSell: tokenBalance });
-  }
+}
 
-  function handleCheckBox(event) {
-    event.preventDefault();
-    setInputs({ ...inputs, checked: !inputs.checked });
-  }
+function handleCheckBox(event) 
+{
+  event.preventDefault();
+  setInputs({ ...inputs, checked: !inputs.checked });
+}
 
-  async function handletSellButton(event) {
+async function handleSellButton(event)
+{
     event.preventDefault();
     setVisible((visible) => !visible);
-    if (visible) {
-      setTransactionHash({ confirmedHash: "" });
-      setSellTokenTxnStatus(TRANSACTION_STATUS.TRANSACTION_IN_PROGRESS);
-      contract_id = await web3.utils.toChecksumAddress(inputs.contractAddress).toLowerCase();
-      const tmpInitialPrice  = await getTokenPrice(contract_id);
-      setTokenCurrentPrice(tmpInitialPrice[1]); 
-      const tokenInitPrice = tmpInitialPrice[1]; 
-      setTokenProperty({ ...currentToken, initialPrice: tokenInitPrice });
-      const tmpX = parseInt(inputs.noOfX);
-      setInputs({ ...inputs, noOfX: tmpX });
-      currentToken.initialPrice = tokenInitPrice;
 
-      if (0 >= tokenInitPrice) {
-        console.log("Price Calculation is wrong: " + tokenInitPrice);
-        setSellTokenTxnStatus(
-          TRANSACTION_STATUS.TRANSACTION_COMPLETE_EXCEPTION
-        );
-        setVisible(visible, true);
-        return;
-      }
+    if (0 === inputs.noOfX.length)
+    {
+      inputs.noOfX = "0"; 
+    }
+    const tmpX = parseInt(inputs.noOfX);
+    setInputs({ ...inputs, noOfX: tmpX });
 
-      const pairValid = await getSwapPair(BASE_TOKEN_CONTRACT_ADDRESS, contract_id);
-      if (web3.utils.toBN(pairValid).isZero()) {
-        console.log("Pair Invalid: " + pairValid);
-        setSellTokenTxnStatus(
-          TRANSACTION_STATUS.TRANSACTION_COMPLETE_EXCEPTION
-        );
-        setVisible(visible, true);
-        return;
-      }
+    if (visible) 
+    {
+        setTransactionHash({ confirmedHash: "" });
+        setSellTokenTxnStatus(TRANSACTION_STATUS.TRANSACTION_IN_PROGRESS);
+        contract_id = web3.utils.toChecksumAddress(inputs.contractAddress).toLowerCase();
 
-      const sellTokenContract = await getContractObject();
-      await updateSlippageLossToken(sellTokenContract);
-      var timeInSeconds = parseInt(inputs.delayedSell);
-      if (timeInSeconds) {
-        timeInSeconds *= 1000;
-        console.log(
-          "Delaying Sell Token in " + inputs.delayedSell + " seconds"
-        );
-        const tmpTimerID = setTimeout(
-          delayTimerExpiredStartSellToken,
-          timeInSeconds
-        );
-        setDelayedSellTimerID(tmpTimerID);
-      } else if (tmpX === 0) {
-        setTokenProperty({ ...currentToken, targetPrice: tokenInitPrice });
-        startSellToken();
-      } else {
-        const tmpTargetPrice = tmpX * tokenInitPrice;
-        currentToken.targetPrice = tmpTargetPrice;
-        setTokenProperty({ ...currentToken, targetPrice: tmpTargetPrice });
-        monitorTokenPrice();
-        const intervalID = setInterval(
-          monitorTokenPrice,
-          POLLING_BLOCKCHAIN_INTERVAL.INTERVAL_SELL_CONTRACT
-        );
-        setMonitorPriceTimerID(intervalID);
-      }
-    } else {
-      const tmpX = parseInt(inputs.noOfX);
-      if (inputs.delayedSell !== 0) {
+        const tmpInitialPrice  = await getTokenPrice(contract_id);
+        setTokenCurrentPrice(tmpInitialPrice[1]); 
+
+        const tokenInitPrice = tmpInitialPrice[1]; 
+        setTokenProperty({ ...currentToken, initialPrice: tokenInitPrice });
+
+        currentToken.initialPrice = tokenInitPrice;
+
+        if (0 >= tokenInitPrice) 
+        {
+          console.log("Price Calculation is wrong: " + tokenInitPrice);
+          setSellTokenTxnStatus(TRANSACTION_STATUS.TRANSACTION_COMPLETE_EXCEPTION);
+          setVisible(visible, true);
+          return;
+        }
+
+        const pairValid = await getSwapPair(BASE_TOKEN_CONTRACT_ADDRESS, contract_id);
+        if (web3.utils.toBN(pairValid).isZero())
+        {
+          console.log("Pair Invalid: " + pairValid);
+          setSellTokenTxnStatus(TRANSACTION_STATUS.TRANSACTION_COMPLETE_EXCEPTION);
+          setVisible(visible, true);
+          return;
+        }
+
+        const sellTokenContract = await getContractObject();
+        await updateSlippageLossToken(sellTokenContract);
+        var timeInSeconds = parseInt(inputs.delayedSell);
+
+        if (timeInSeconds)
+        {
+          timeInSeconds *= 1000;
+          console.log("Delaying Sell Token in " + inputs.delayedSell + " seconds");
+          const tmpTimerID = setTimeout(delayTimerExpiredStartSellToken,timeInSeconds);
+          setDelayedSellTimerID(tmpTimerID);
+        } 
+        else if (tmpX === 0) 
+        {
+          setTokenProperty({ ...currentToken, targetPrice: tokenInitPrice });
+          startSellToken();
+        } 
+        else 
+        {
+          const tmpTargetPrice = tmpX * tokenInitPrice;
+          currentToken.targetPrice = tmpTargetPrice;
+          setTokenProperty({ ...currentToken, targetPrice: tmpTargetPrice });
+          monitorTokenPrice();
+          const intervalID = setInterval(monitorTokenPrice, POLLING_BLOCKCHAIN_INTERVAL.INTERVAL_SELL_CONTRACT);
+          setMonitorPriceTimerID(intervalID);
+        }
+    } 
+    else 
+    {     
+      if (inputs.delayedSell !== 0) 
+      {
         console.log("Delayed Sell Stopped");
         clearTimeout(delayedSellTimerID);
         setInputs({ ...inputs, delayedSell: 0 });
       }
-      if (tmpX !== 0) {
+      if (tmpX !== 0) 
+      {
         console.log("No of X  Sell Stopped");
         clearInterval(monitorPriceTimerID);
         //setInputs({ ...inputs, noOfX: 0 });
       }
-
       setSellTokenTxnStatus(TRANSACTION_STATUS.TRANSACTION_NOT_STARTED);
     }
-  }
-  function delayTimerExpiredStartSellToken() {
+}
+
+function delayTimerExpiredStartSellToken() 
+{
     console.log("Timer Expired Sell will trigger");
     startSellToken();
     setInputs({ ...inputs, delayedSell: 0 });
-  }
+ }
 
-  async function isTokenReachedExpectedTargetPrice(kNoOfX, kTokenPriceBeforeMonitor) {
+async function isTokenReachedExpectedTargetPrice(kNoOfX, kTokenPriceBeforeMonitor) 
+{
     var result = false;
     const currentTokenPriceInUSD = await getTokenPrice(contract_id);
     const tmpTokenCurrentPrice = currentTokenPriceInUSD[1];
@@ -183,30 +192,33 @@ function SellToken(props) {
     //console.log("currentTokenPriceInUSD : ", tokenCurrentPrice);
     var targetSellPrice = tmpTokenCurrentPrice * parseInt(kNoOfX);
     console.log("isTokenReachedExpectedPrice: CurrentPrice: " +tmpTokenCurrentPrice +" TargetPrice: " +targetSellPrice + " TokenPriceBeforeMonitor: " +kTokenPriceBeforeMonitor);
-    if (kTokenPriceBeforeMonitor >= targetSellPrice) {
+    
+    if (kTokenPriceBeforeMonitor >= targetSellPrice) 
+    {
       result = true;
     }
     const tmpNoOfX = tmpTokenCurrentPrice / kTokenPriceBeforeMonitor - 1;
     setTokenProperty({ ...currentToken, noOfXReached: tmpNoOfX });
     return result;
-  }
-  async function monitorTokenPrice() {
+}
+
+async function monitorTokenPrice() 
+{
     //console.log("monitorTokenPrice --->");
-    const bResult = await isTokenReachedExpectedTargetPrice(
-      inputs.noOfX,
-      currentToken.initialPrice
-    );
+    const bResult = await isTokenReachedExpectedTargetPrice(inputs.noOfX, currentToken.initialPrice);
     if (bResult) {
       startSellToken();
       clearInterval(monitorPriceTimerID);
       //setInputs({ ...inputs, noOfX: 0 });
     }
-  }
+}
 
-  async function updateSlippageLossToken(sellTokenContractID) {
+async function updateSlippageLossToken(sellTokenContractID)
+{
     var amountIn = '';
     var amountOutMinInNo = ''; 
-    try {
+    try 
+    {
       const inputTokenInWei = await web3.utils.toWei( inputs.noOfTokensToSell.toString(),"ether");
       console.log("Nof of Tokens to Sell: " +inputs.noOfTokensToSell +" Slippage(%): " +inputs.slippage);
 
@@ -248,7 +260,8 @@ function SellToken(props) {
     return [amountIn, amountOutMinInNo];
   }
 
-  async function startSellToken() {
+  async function startSellToken() 
+  {
     try {
       const pairAddress = [contract_id, BASE_TOKEN_CONTRACT_ADDRESS];
       const sellTokenContract = await getContractObject();
@@ -266,15 +279,7 @@ function SellToken(props) {
           senderAddress,
           getTransactionDeadline()
         );
-      /*
-            const data = await sellTokenContract.methods.swapExactTokensForETH(
-                web3.utils.toHex(amountIn),
-                web3.utils.toHex(amountOutMin),
-                pairAddress,
-                senderAddress,
-                deadline
-            );*/
-
+     
       const realGasPrice = await getCurrentGasPrice(false);
 
       const count = await web3.eth.getTransactionCount(senderAddress);
@@ -418,7 +423,7 @@ function SellToken(props) {
           )}
           {inputs.contractAddress.length === 42 && tokenBalance !== 0 && (
             <Button
-              OnClick={handletSellButton}
+              OnClick={handleSellButton}
               title={visible ? "Start Sell" : "Stop Sell"}
             >
               {" "}

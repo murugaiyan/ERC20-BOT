@@ -8,11 +8,11 @@ function NetworkName()
     
             if(BLOCKCHAIN_CHAIN_ID === BLOCKCHAIN_CHAIN_ID_NETWORK.BSC_MAINNET)
             {
-                network.name = "BSC Mainnet";                  
+                network.name = "BNB Chain";                  
             }
             else if(BLOCKCHAIN_CHAIN_ID  === BLOCKCHAIN_CHAIN_ID_NETWORK.BSC_TESTNET)
             {
-                network.name = "BSC Testnet";
+                network.name = "BNB Chain Testnet";
             }
             else if(BLOCKCHAIN_CHAIN_ID === BLOCKCHAIN_CHAIN_ID_NETWORK.ETH_MAINNET)
             {

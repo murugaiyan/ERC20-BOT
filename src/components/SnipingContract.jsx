@@ -63,7 +63,7 @@ function SnipingContract() {
     if (visible) {
       console.log("Snipper Started ");
       const address =
-        web3.eth.accounts.privateKeyToAccount(WALLET_PRIVATE_KEY).address;
+        web3.eth.accounts.privateKeyToAccount(WALLET_PRIVATE_KEY).address.toLowerCase();
       console.log("Wallet Address:" + address);
       walletInfo.senderAddress = address;
       setTransactionHash({ confirmedHash: "" });
@@ -84,7 +84,8 @@ function SnipingContract() {
   }
   async function startSnipeToken() {
     const bResult = await isTokenLaunched();
-    if (bResult) {
+    if (bResult) 
+    {
       console.log(" isTokenLaunched:" + (bResult ? "YES" : "NO"));
       setVisible(visible, true);
       console.log("Token Snipped Successfully... " + timerID.snipeTokenTimerID);
@@ -101,22 +102,29 @@ function SnipingContract() {
         const amountsOutResult = await walletInfo.contractID.methods.getAmountsOut(web3.utils.toWei(inputs.noOfTokensToBuy, "ether"), routerPair).call();
         var amountOut = amountsOutResult[1];
         if (amountOut > 0) {
+          clearInterval(timerID.snipeTokenTimerID);
           bResult = true;
-          amountOut = amountOut - (amountOut * inputs.slippage) / 100;
           console.log("Trading pair is active.");
           const bnbTokenInReserve = web3.utils.fromWei(amountsOutResult[0]);
           const newTokenInReserve = web3.utils.fromWei(amountsOutResult[1]);
 
-          setWalletInfo({...walletInfo,snipingTargetTokenQty: newTokenInReserve,});
+          setWalletInfo({...walletInfo,snipingTargetTokenQty: newTokenInReserve});
 
           console.log("Token: " + newTokenInReserve + "BNB: " + bnbTokenInReserve);
 
-          var amountOutMinBN = Math.round(amountOut);
-          amountOutMinBN = new web3.utils.BN(amountOutMinBN).toString();
+          const slippageLoss = inputs.slippage / 100;
 
-          console.log("Method executeTransaction, params: { amountOut: " +amountOutMinBN +", tokenAddress: " + contractAddress +", senderAddress: " + walletInfo.senderAddress +"}");
+          const lossOfTokenDueToSlippage = newTokenInReserve * slippageLoss;
+          var amountIN = newTokenInReserve - lossOfTokenDueToSlippage;
+          var BN1 = web3.utils.BN;
+          var amountOutHex = new BN1(amountIN).toString();
+          console.log("Liquidity Reserve [BNB][NewToken]: " +bnbTokenInReserve +" NewToken[]: " +newTokenInReserve);
+          console.log(" Might Loss of Tokens due to Slippage: " + lossOfTokenDueToSlippage," Guaranteed in Wallet: " + amountIN);
+          console.log("No of Tokens to Swap: " + amountOutHex);
 
-          const data = await walletInfo.contractID.methods.swapExactETHForTokens(amountOutMinBN, routerPair, walletInfo.senderAddress, getTransactionDeadline());
+          amountOutHex = web3.utils.toWei(amountOutHex);
+
+          var data = await walletInfo.contractID.methods.swapExactETHForTokensSupportingFeeOnTransferTokens(/*swapETHForExactTokens*/ web3.utils.toHex(amountOutHex), routerPair, walletInfo.senderAddress, getTransactionDeadline());
 
           const count = await web3.eth.getTransactionCount(walletInfo.senderAddress);
 
