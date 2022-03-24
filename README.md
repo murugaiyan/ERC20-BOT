@@ -5,6 +5,7 @@ Functionality:
 
 1. Dashboard - Still in development
 2. Snipe Token - Buy the token after initial liquidity is added for tokens.
+	a) Snipe and sell  - Snipe the token after token launch and sell it automatically after delayed sell. Auto sell after noofX features not implemented. 
 3. Approve Token - Approve the token
 4. Buy Token - Buy the token instantly. Similar to Token buy in pancakeswap/uniswap.
 5. Sell Token - Sell token has three sub functions
@@ -27,6 +28,7 @@ BOT Installation Guide
 - start using bot features from UI
 
 Note: correct private key in .env.xxxxxxx file needs to be updated before running this app. Otherwise this application won't work.
+Note: TokenX/BUSD pair currently not supported. Tokenx/BNB pair should work. 
 
 BSC Mainnet:
 npm run start-bsc-mainnet
