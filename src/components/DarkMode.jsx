@@ -9,17 +9,21 @@ import Time from "./Time";
 import Navigation from "./Navigation";
 import WalletInfoDashboard from "./WalletInfoDashboard";
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    marginBottom: theme.spacing(2),
-    flexGrow: 1,
-  },
-  title: {
-    flexGrow: 1,
-  },
-}));
+function DarkMode() {
+  const useStyles = makeStyles((theme) => ({
+              root: {
+                marginBottom: theme.spacing(2),
+                flexGrow: 1,
+              },
+              title: {
+                flexGrow: 1,
+              },
+      }));
 
-export default function DarkMode() {
+  const light = {palette: {type: "light"}};
+  const dark = {palette: {type: "dark"}};
+
+
   const [theme, setTheme] = useState(true);
   const classes = useStyles();
   const icon = !theme ? <Brightness7Icon /> : <Brightness3Icon />;
@@ -46,13 +50,5 @@ export default function DarkMode() {
   );
 }
 
-export const light = {
-  palette: {
-    type: "light",
-  },
-};
-export const dark = {
-  palette: {
-    type: "dark",
-  },
-};
+ 
+export default DarkMode;

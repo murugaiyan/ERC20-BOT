@@ -67,9 +67,9 @@ function BuyToken() {
     try {
       setTransactionHash({ confirmedHash: "" });
       setBuyTokenTxnStatus(TRANSACTION_STATUS.TRANSACTION_IN_PROGRESS);
-      const senderAddress = await web3.eth.accounts.privateKeyToAccount(WALLET_PRIVATE_KEY).address;
+      const senderAddress = web3.eth.accounts.privateKeyToAccount(WALLET_PRIVATE_KEY).address;
 
-      const contract_id = await web3.utils.toChecksumAddress(inputs.contractAddress).toLowerCase();
+      const contract_id = web3.utils.toChecksumAddress(inputs.contractAddress).toLowerCase();
 
       console.log("Buy  Token Contract Address: " + contract_id);
       //console.log("Buy Token Sender Address: " + senderAddress);

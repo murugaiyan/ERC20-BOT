@@ -26,6 +26,7 @@ import {
   getCurrentGasPrice,
   getSwapPair,
   getTransactionDeadline,
+  getWeb3Object
 } from "./blockchain/utils";
 import CurrentTokenPrice from "./CurrentTokenPrice";
 
@@ -219,7 +220,20 @@ async function updateSlippageLossToken(sellTokenContractID)
     var amountOutMinInNo = ''; 
     try 
     {
-      const inputTokenInWei = await web3.utils.toWei( inputs.noOfTokensToSell.toString(),"ether");
+      //const inputTokenInWei = await web3.utils.toWei( inputs.noOfTokensToSell.toString(), "ether");
+      //const inputTokenInWei = await getTokenBalanceInWei(contract_id); 
+      let inputTokenInWei ; 
+      const tokenRouter = await getWeb3Object(inputs.contractAddress.toString());
+      const tokenDecimals = await tokenRouter.methods.decimals().call();
+
+      if(tokenDecimals === "9")
+      {
+          inputTokenInWei = web3.utils.toWei(inputs.noOfTokensToSell.toString(), "gwei");
+      }
+      else
+      {
+          inputTokenInWei = web3.utils.toWei(inputs.noOfTokensToSell.toString(), "ether");
+      }
       console.log("Nof of Tokens to Sell: " +inputs.noOfTokensToSell +" Slippage(%): " +inputs.slippage);
 
       const amount_out = await sellTokenContractID.methods.getAmountsOut(inputTokenInWei, [contract_id, BASE_TOKEN_CONTRACT_ADDRESS]).call();
@@ -259,6 +273,8 @@ async function updateSlippageLossToken(sellTokenContractID)
 
     return [amountIn, amountOutMinInNo];
   }
+
+  
 
   async function startSellToken() 
   {

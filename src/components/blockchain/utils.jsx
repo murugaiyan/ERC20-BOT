@@ -500,6 +500,12 @@ export async function getTokenDecimal(tokenAddres) {
   return tokenDecimals;
 }
 
+export async function getWeb3Object(tokenAddres)
+{
+  const tokenRouter = new web3.eth.Contract(tokenAbi, tokenAddres.toLowerCase());
+  return tokenRouter; 
+}
+
 export async function getNetworkGasPrice(realGasPrice, noOfQtyToSendInBNB) {
   var gasPrice = 0; 
   try {
@@ -604,16 +610,18 @@ export async function getContractObject() {
   if (
     BLOCKCHAIN_CHAIN_ID_NETWORK.ETH_MAINNET === BLOCKCHAIN_CHAIN_ID ||
     BLOCKCHAIN_CHAIN_ID_NETWORK.ETH_GOERILI === BLOCKCHAIN_CHAIN_ID
-  ) {
-    contractObject = new web3.eth.Contract(
+  ) 
+  {
+    contractObject = await new web3.eth.Contract(
       UNISWAP_CONTRACT_ABI,
       ROUTER_CONTRACT_ADDRESS
     );
-  } else if (
+  } 
+  else if (
     BLOCKCHAIN_CHAIN_ID_NETWORK.BSC_MAINNET === BLOCKCHAIN_CHAIN_ID ||
-    BLOCKCHAIN_CHAIN_ID_NETWORK.BSC_TESTNET === BLOCKCHAIN_CHAIN_ID
-  ) {
-    contractObject = new web3.eth.Contract(
+    BLOCKCHAIN_CHAIN_ID_NETWORK.BSC_TESTNET === BLOCKCHAIN_CHAIN_ID) 
+  {
+    contractObject = await new web3.eth.Contract(
       PANCAKE_CONTRACT_ABI,
       ROUTER_CONTRACT_ADDRESS
     );
